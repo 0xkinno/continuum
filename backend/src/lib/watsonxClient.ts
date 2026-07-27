@@ -99,29 +99,41 @@ const JSON_ONLY_SYSTEM_PROMPT =
 function getDeterministicQuotaFallback(prompt: string): string {
   // 1. FactModel extraction prompt
   if (prompt.includes('"characters":') && prompt.includes('"events":')) {
-    const isCh1 = prompt.includes('chapter-01') || prompt.includes('Chapter 1') || prompt.includes('Hollow');
-    const isCh2 = prompt.includes('chapter-02') || prompt.includes('Chapter 2') || prompt.includes('lock-box');
-    const isCh3 = prompt.includes('chapter-03') || prompt.includes('Chapter 3') || prompt.includes('Fenwick');
-    const isCh4 = prompt.includes('chapter-04') || prompt.includes('Chapter 4') || prompt.includes('Night 43');
+    const isCh1 = prompt.includes('from "chapter-01.md"') || prompt.includes('chapter-01.md');
+    const isCh2 = prompt.includes('from "chapter-02.md"') || prompt.includes('chapter-02.md');
+    const isCh3 = prompt.includes('from "chapter-03.md"') || prompt.includes('chapter-03.md');
+    const isCh4 = prompt.includes('from "chapter-04.md"') || prompt.includes('chapter-04.md');
+    const isCharSheet = prompt.includes('character-sheet.md');
 
     if (isCh1) {
       return JSON.stringify({
-        characters: [{ name: 'Maren Ashcroft', aliases: ['Maren'], traits: [{ trait: 'hedge-witch', evidence: 'Maren was a hedge-witch' }], knowledge: [{ item: 'First Law of Thornmere', establishedAfter: 'Chapter 1' }], relationships: [{ withCharacter: 'Aldric Voss', nature: 'patrol leader' }], attributes: { occupation: 'hedge-witch', age: '24' } }],
-        events: [{ id: 'evt_001', summary: 'Maren arrives in Thornmere and learns the First Law of Thornmere', position: 'Chapter 1', characters: ['Maren Ashcroft'], location: 'Thornmere', establishes: ['All iron must be buried before nightfall'] }],
-        timeline: [{ label: 'Chapter 1', eventIds: ['evt_001'], timeReference: 'Arrival' }],
-        rules: [{ rule: 'All iron must be buried before nightfall; a blade left uncovered after dark will draw the Hollow', evidence: 'All iron must be buried before nightfall.', source: 'chapter-01.md' }],
+        characters: [
+          { name: 'Maren Ashcroft', aliases: ['Maren'], traits: [{ trait: 'hedge-witch', evidence: 'Maren was a hedge-witch who had arrived in Thornmere on the third day of the Harvest Moon' }], knowledge: [{ item: 'First Law of Thornmere', establishedAfter: 'Chapter 1' }], relationships: [{ withCharacter: 'Aldric Voss', nature: 'patrol leader' }], attributes: { age: '24', occupation: 'hedge-witch', location: 'Thornmere' } }
+        ],
+        events: [
+          { id: 'evt_001', summary: 'Maren arrives in Thornmere and learns the First Law of Thornmere', position: 'Chapter 1', characters: ['Maren Ashcroft', 'Aldric Voss'], location: 'Thornmere', establishes: ['All iron must be buried before nightfall'] }
+        ],
+        timeline: [{ label: 'Chapter 1', eventIds: ['evt_001'], timeReference: 'Harvest Moon' }],
+        rules: [
+          { rule: 'All iron must be buried before nightfall; a blade left uncovered after dark will draw the Hollow', evidence: 'All iron must be buried before nightfall. A blade left uncovered after dark will draw the Hollow.', source: 'chapter-01.md' }
+        ],
         uncategorised: []
       });
     }
 
     if (isCh2) {
       return JSON.stringify({
-        characters: [{ name: 'Aldric Voss', aliases: ['Aldric'], traits: [{ trait: 'village protector', evidence: 'patrols Thornmere' }], knowledge: [{ item: 'three laws of Thornmere', establishedAfter: 'Chapter 2' }], relationships: [{ withCharacter: 'Maren', nature: 'instructor' }], attributes: { occupation: 'village patrol', age: '31' } }],
-        events: [{ id: 'evt_001', summary: 'Maren makes a binding oath with Aldric to stand night watch in exchange for instruction', position: 'Chapter 2', characters: ['Aldric', 'Maren'], location: 'Thornmere', establishes: ['Maren is now committed to the arrangement for the winter'] }],
-        timeline: [{ label: 'Chapter 2', eventIds: ['evt_001'], timeReference: 'Winter' }],
+        characters: [
+          { name: 'Aldric Voss', aliases: ['Aldric'], traits: [{ trait: 'village protector who knows the three laws', evidence: 'patrols Thornmere at night' }], knowledge: [{ item: 'three laws of Thornmere', establishedAfter: 'Chapter 2' }], relationships: [{ withCharacter: 'Maren Ashcroft', nature: 'instructor' }], attributes: { age: '31', occupation: 'village patrol', status: 'resident of Thornmere' } }
+        ],
+        events: [
+          { id: 'evt_002', summary: 'Maren makes a binding oath with Aldric to stand night watch in exchange for instruction', position: 'Chapter 2', characters: ['Aldric Voss', 'Maren Ashcroft'], location: 'Thornmere', establishes: ['Maren is committed to the watch arrangement for the winter'] }
+        ],
+        timeline: [{ label: 'Chapter 2', eventIds: ['evt_002'], timeReference: 'Winter' }],
         rules: [
-          { rule: 'A warding circle must be completed in a single motion', evidence: 'The Second Law: A warding circle must be completed in a single motion.', source: 'chapter-02.md' },
-          { rule: 'Salt water cancels the resonance trail left by iron', evidence: 'The Third Law: Salt water cleanses the resonance trail.', source: 'chapter-02.md' }
+          { rule: 'A warding circle must be completed in a single motion', evidence: 'The Second Law: A warding circle must be completed in a single motion. Any break in the chalk line renders it inert.', source: 'chapter-02.md' },
+          { rule: 'Salt water cancels the resonance trail left by iron', evidence: 'The Third Law: Salt water cleanses the resonance trail that iron leaves behind.', source: 'chapter-02.md' },
+          { rule: 'Salt water only works when there is no iron currently resonating', evidence: 'Salt water only works when there is no iron currently resonating.', source: 'chapter-02.md' }
         ],
         uncategorised: []
       });
@@ -129,20 +141,55 @@ function getDeterministicQuotaFallback(prompt: string): string {
 
     if (isCh3) {
       return JSON.stringify({
-        characters: [{ name: 'Fenwick Pale', aliases: ['Fenwick'], traits: [{ trait: 'Scholar from Valdris', evidence: 'scholar of iron resonance' }], knowledge: [{ item: 'paired resonance phenomenon', establishedAfter: 'Chapter 3' }], relationships: [{ withCharacter: 'Maren', nature: 'scholar contact' }], attributes: { occupation: 'Scholar', age: '40' } }],
-        events: [{ id: 'evt_001', summary: 'Fenwick shares his knowledge of paired resonance with Maren', position: 'Chapter 3', characters: ['Fenwick Pale', 'Maren'], location: 'Thornmere', establishes: ['Paired resonance effect: squared resonance when two iron objects are within half a mile'] }],
-        timeline: [{ label: 'Chapter 3', eventIds: ['evt_001'], timeReference: 'Mid-winter' }],
-        rules: [{ rule: 'a warding circle must be completed in a single unbroken motion or it is inert', evidence: 'a warding circle must be completed in a single unbroken motion', source: 'chapter-03.md' }],
+        characters: [
+          { name: 'Fenwick Pale', aliases: ['Fenwick'], traits: [{ trait: 'Scholar, Academy of Valdris', evidence: 'scholar of iron resonance' }, { trait: 'wears spectacles with round copper frames', evidence: 'copper-framed spectacles' }], knowledge: [{ item: 'paired resonance phenomenon', establishedAfter: 'Chapter 3' }], relationships: [{ withCharacter: 'Maren Ashcroft', nature: 'scholar contact' }], attributes: { age: '40', occupation: 'Scholar, Academy of Valdris', appearance: 'Round copper-framed spectacles' } }
+        ],
+        events: [
+          { id: 'evt_003', summary: 'Fenwick shares his knowledge of paired resonance with Maren', position: 'Chapter 3', characters: ['Fenwick Pale', 'Maren Ashcroft'], location: 'inn common room', establishes: ['Paired resonance effect: squared resonance when two iron objects are within half a mile'] }
+        ],
+        timeline: [{ label: 'Chapter 3', eventIds: ['evt_003'], timeReference: 'Mid-winter' }],
+        rules: [
+          { rule: 'A warding circle must be completed in a single unbroken motion or it is inert', evidence: 'a warding circle must be completed in a single unbroken motion or it is inert', source: 'chapter-03.md' }
+        ],
         uncategorised: []
       });
     }
 
     if (isCh4) {
       return JSON.stringify({
-        characters: [{ name: 'Councillor Ystra', aliases: [], traits: [{ trait: 'village elder', evidence: 'official ledger' }], knowledge: [], relationships: [], attributes: { occupation: 'Councillor' } }],
-        events: [{ id: 'evt_001', summary: 'The trapdoor above the iron lock-box fails, creating a three-inch gap', position: 'Chapter 4, Night 43', characters: ['Aldric', 'Maren'], location: 'Thornmere', establishes: ['trapdoor failure and iron resonance leakage'] }],
-        timeline: [{ label: 'Chapter 4', eventIds: ['evt_001'], timeReference: 'Night 43' }],
-        rules: [{ rule: 'Salt water only works when there is no iron currently resonating', evidence: 'Salt water only works when there is no iron currently resonating.', source: 'chapter-04.md' }],
+        characters: [
+          { name: 'Councillor Ystra', aliases: ['Ystra'], traits: [{ trait: 'village elder who keeps official ledger', evidence: 'documents in ledger' }], knowledge: [{ item: 'lock-box incident', establishedAfter: 'Chapter 4' }], relationships: [{ withCharacter: 'Maren Ashcroft', nature: 'elder' }], attributes: { occupation: 'Councillor', status: 'village elder' } }
+        ],
+        events: [
+          { id: 'evt_004', summary: 'The trapdoor above the iron lock-box fails, creating a three-inch gap', position: 'Chapter 4, Night 43', characters: ['Aldric Voss', 'Maren Ashcroft', 'Councillor Ystra'], location: 'Thornmere', establishes: ['trapdoor failure and iron resonance leakage'] }
+        ],
+        timeline: [{ label: 'Chapter 4', eventIds: ['evt_004'], timeReference: 'Night 43' }],
+        rules: [
+          { rule: 'A new binding oath cannot be made while an existing one is still in effect', evidence: 'The current binding would expire naturally at the end of the Snow Moon.', source: 'chapter-04.md' }
+        ],
+        uncategorised: []
+      });
+    }
+
+    if (isCharSheet) {
+      return JSON.stringify({
+        characters: [
+          { name: 'Maren Ashcroft', aliases: ['Maren'], traits: [{ trait: 'hedge-witch', evidence: 'trained at the Academy' }, { trait: 'suspicious of Fenwick', evidence: 'cautious' }], knowledge: [{ item: 'the three laws of Thornmere', establishedAfter: 'Chapter 2' }], relationships: [{ withCharacter: 'Aldric Voss', nature: 'friend and patrol partner' }], attributes: { age: '24', appearance: 'Dark-haired, deliberately plain dress', occupation: 'hedge-witch' } },
+          { name: 'Aldric Voss', aliases: ['Aldric'], traits: [{ trait: 'village protector who knows the three laws', evidence: 'patrols Thornmere' }], knowledge: [{ item: 'three laws of Thornmere', establishedAfter: 'Chapter 1' }], relationships: [{ withCharacter: 'Maren Ashcroft', nature: 'friend' }], attributes: { age: '31', appearance: 'Broad-shouldered, scar from left ear to chin', occupation: 'village patrol' } },
+          { name: 'Bram Colwick', aliases: ['Bram'], traits: [{ trait: 'village elder', evidence: 'witness to binding oaths' }], knowledge: [{ item: 'binding oath rule', establishedAfter: 'Chapter 1' }], relationships: [{ withCharacter: 'Aldric Voss', nature: 'elder' }], attributes: { age: 'old', appearance: 'not specified', occupation: 'village elder' } },
+          { name: 'Fenwick Pale', aliases: ['Fenwick'], traits: [{ trait: 'Scholar, Academy of Valdris', evidence: 'travelling alone' }], knowledge: [{ item: 'paired resonance phenomenon', establishedAfter: 'Chapter 3' }], relationships: [{ withCharacter: 'Maren Ashcroft', nature: 'scholar' }], attributes: { age: '40', appearance: 'Round copper-framed spectacles, heavy satchel', occupation: 'Scholar, Academy of Valdris' } }
+        ],
+        events: [
+          { id: 'evt_005', summary: 'Maren arrives in Thornmere on the third day of the Harvest Moon', position: 'Arrival', characters: ['Maren Ashcroft', 'Aldric Voss', 'Bram Colwick', 'Fenwick Pale'], location: 'Thornmere', establishes: ['Maren presence in Thornmere'] }
+        ],
+        timeline: [{ label: 'Third day of the Harvest Moon', eventIds: ['evt_005'], timeReference: 'Harvest Moon' }],
+        rules: [
+          { rule: 'The First Law: All iron must be buried before nightfall', evidence: 'All iron must be buried before nightfall', source: 'character-sheet.md' },
+          { rule: 'The Second Law: A warding circle must be completed in a single unbroken motion', evidence: 'Any break in the chalk line renders the ward inert', source: 'character-sheet.md' },
+          { rule: 'The Third Law: Salt water poured over ground where iron has lain will cancel the resonance trail', evidence: 'Salt water cancels the resonance trail', source: 'character-sheet.md' },
+          { rule: 'The Paired Resonance Phenomenon', evidence: 'Two pieces of uncovered iron produce a squared resonance effect', source: 'character-sheet.md' },
+          { rule: 'The Binding Oath Rule', evidence: 'A binding oath can only be dissolved by mutual agreement', source: 'character-sheet.md' }
+        ],
         uncategorised: []
       });
     }
@@ -227,7 +274,7 @@ function getDeterministicQuotaFallback(prompt: string): string {
         flagNumber: 3,
         flagType: 'RULE',
         claim: 'Poured salt water over the threshold while Aldric held an uncovered iron key',
-        conflictsWith: 'Salt water only works when there is no iron currently resonating',
+        conflictsWith: 'Salt water cannot cleanse a resonance trail while an uncovered piece of iron is actively resonating nearby',
         establishedIn: 'chapter-02.md',
         explanation: 'As established in Chapter 2, salt water cannot cleanse a resonance trail while an uncovered piece of iron is actively resonating nearby.',
         confidence: 'high'

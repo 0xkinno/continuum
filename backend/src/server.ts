@@ -14,6 +14,8 @@ import 'dotenv/config';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { healthRoutes } from './routes/health.js';
 import { ingestRoutes } from './routes/ingest.js';
@@ -21,8 +23,34 @@ import { knowledgeRoutes } from './routes/knowledge.js';
 import { continuityRoutes } from './routes/continuity.js';
 import { historyRoutes } from './routes/history.js';
 import { seedRoutes } from './routes/seed.js';
+import { listSources } from './agents/knowledgeAgent.js';
+import { directIngestFile } from './agents/directIngest.js';
 
 const PORT = Number(process.env.BACKEND_PORT ?? 3001);
+
+async function autoSeedIfEmpty() {
+  try {
+    const sources = listSources();
+    if (sources.length === 0) {
+      console.log('[autoSeed] Database empty on startup. Auto-seeding demo project...');
+      const __dirname = dirname(fileURLToPath(import.meta.url));
+      const DEMO_DIR = join(__dirname, 'seed', 'demo-data');
+      const docs = [
+        { path: join(DEMO_DIR, 'chapters', 'chapter-01.md'), label: 'chapter-01.md' },
+        { path: join(DEMO_DIR, 'chapters', 'chapter-02.md'), label: 'chapter-02.md' },
+        { path: join(DEMO_DIR, 'chapters', 'chapter-03.md'), label: 'chapter-03.md' },
+        { path: join(DEMO_DIR, 'chapters', 'chapter-04.md'), label: 'chapter-04.md' },
+        { path: join(DEMO_DIR, 'characters', 'character-sheet.md'), label: 'character-sheet.md' },
+      ];
+      for (const d of docs) {
+        await directIngestFile(d.path, d.label);
+      }
+      console.log('[autoSeed] Auto-seeding complete. Canon and Knowledge base populated.');
+    }
+  } catch (err) {
+    console.error('[autoSeed] Error during auto-seed:', err);
+  }
+}
 
 async function buildApp() {
   const app = Fastify({
@@ -36,7 +64,7 @@ async function buildApp() {
 
   // ── Plugins ───────────────────────────────────────────────────────────────
   await app.register(cors, {
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+    origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
   });
 
@@ -59,6 +87,7 @@ async function buildApp() {
 async function start() {
   const app = await buildApp();
   await app.listen({ port: PORT, host: '0.0.0.0' });
+  await autoSeedIfEmpty();
 }
 
 start().catch((err) => {
