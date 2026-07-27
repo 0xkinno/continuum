@@ -67,19 +67,24 @@ async function proxyRequest(
 
     const backendRes = await fetch(targetUrl, initOptions)
 
-    // Build response headers
+    // Build response headers — strip content-length, transfer-encoding, content-encoding
+    // so Vercel/Next.js response pipeline calculates accurate body length without truncation
     const resHeaders = new Headers()
     backendRes.headers.forEach((value, key) => {
       const lowerKey = key.toLowerCase()
       if (
         lowerKey !== 'transfer-encoding' &&
-        lowerKey !== 'content-encoding'
+        lowerKey !== 'content-encoding' &&
+        lowerKey !== 'content-length'
       ) {
         resHeaders.set(key, value)
       }
     })
 
-    return new Response(backendRes.body, {
+    // Fetch full response text to guarantee complete untruncated payload
+    const responseText = await backendRes.text()
+
+    return new Response(responseText, {
       status: backendRes.status,
       statusText: backendRes.statusText,
       headers: resHeaders,

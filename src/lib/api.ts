@@ -13,25 +13,47 @@ import type {
 
 const BASE = '/api/backend'
 
+async function safeJson<T>(res: Response, fallbackError: string): Promise<T> {
+  const text = await res.text()
+  if (!res.ok) {
+    try {
+      const parsed = JSON.parse(text)
+      if (parsed.message || parsed.error) {
+        throw new Error(parsed.message || parsed.error)
+      }
+    } catch {
+      throw new Error(`HTTP ${res.status}: ${res.statusText || fallbackError}`)
+    }
+    throw new Error(`HTTP ${res.status}: ${res.statusText || fallbackError}`)
+  }
+
+  try {
+    return JSON.parse(text) as T
+  } catch (err) {
+    console.error('JSON Parse Error for response text:', text)
+    throw new Error('Received invalid JSON from backend service.')
+  }
+}
+
 // ── Upload ────────────────────────────────────────────────────────────────────
 
 export async function uploadDocument(file: File): Promise<IngestResponse> {
   const form = new FormData()
   form.append('file', file)
   const res = await fetch(`${BASE}/ingest/upload`, { method: 'POST', body: form })
-  return res.json() as Promise<IngestResponse>
+  return safeJson<IngestResponse>(res, 'Failed to upload document.')
 }
 
 // ── Knowledge ─────────────────────────────────────────────────────────────────
 
 export async function getSources(): Promise<SourcesResponse> {
   const res = await fetch(`${BASE}/knowledge/sources`)
-  return res.json() as Promise<SourcesResponse>
+  return safeJson<SourcesResponse>(res, 'Failed to fetch sources.')
 }
 
 export async function getCanon(): Promise<CanonResponse> {
   const res = await fetch(`${BASE}/knowledge/query?q=all+world+rules+and+events+and+characters`)
-  return res.json() as Promise<CanonResponse>
+  return safeJson<CanonResponse>(res, 'Failed to fetch canon.')
 }
 
 // ── Continuity check ──────────────────────────────────────────────────────────
@@ -42,14 +64,14 @@ export async function checkDraft(draftText: string): Promise<CheckResponse> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ draftText }),
   })
-  return res.json() as Promise<CheckResponse>
+  return safeJson<CheckResponse>(res, 'Failed to perform continuity check.')
 }
 
 // ── History ───────────────────────────────────────────────────────────────────
 
 export async function getHistory(limit = 50, offset = 0): Promise<HistoryListResponse> {
   const res = await fetch(`${BASE}/history/list?limit=${limit}&offset=${offset}`)
-  return res.json() as Promise<HistoryListResponse>
+  return safeJson<HistoryListResponse>(res, 'Failed to fetch history list.')
 }
 
 // ── Demo seed ─────────────────────────────────────────────────────────────────
@@ -103,5 +125,5 @@ export async function runSeedDemo(
 
 export async function getDemoDraft(): Promise<{ success: boolean; draftText?: string; error?: string }> {
   const res = await fetch(`${BASE}/seed/demo-draft`)
-  return res.json() as Promise<{ success: boolean; draftText?: string; error?: string }>
+  return safeJson<{ success: boolean; draftText?: string; error?: string }>(res, 'Failed to fetch demo draft.')
 }
