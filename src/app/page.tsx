@@ -3,6 +3,7 @@
 import { Fragment } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import ArchitectureDiagram from '@/components/ArchitectureDiagram'
 import styles from './landing.module.css'
 
 const EASE_EDITORIAL = [0.22, 1, 0.36, 1] as const
@@ -16,14 +17,6 @@ const heroItem = {
   initial: { opacity: 0, y: 24 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.85, ease: EASE_EDITORIAL } },
 }
-
-const PIPELINE = [
-  { num: '01', label: 'Upload',  sub: 'Docling Engine' },
-  { num: '02', label: 'Parse',   sub: 'IBM Granite' },
-  { num: '03', label: 'Extract', sub: 'Knowledge Store' },
-  { num: '04', label: 'Verify',  sub: 'Continuity Reasoning' },
-  { num: '05', label: 'Canon',   sub: 'Explanation Agent' },
-]
 
 export default function LandingPage() {
   return (
@@ -181,7 +174,7 @@ export default function LandingPage() {
         </div>
       </motion.section>
 
-      {/* ── Architecture Section: Minimal Geometric Light-Connected Pipeline ── */}
+      {/* ── Architecture Section: SVG Hand-Drawn Excalidraw Component ── */}
       <motion.section
         className={styles.section}
         initial={{ opacity: 0, y: 40 }}
@@ -192,50 +185,13 @@ export default function LandingPage() {
         <div className={styles.sectionInner}>
           <p className={styles.sectionEyebrow}>Architecture</p>
           <h2 className={styles.sectionHeading}>Four agents. One pipeline.</h2>
-          <p className={styles.prose}>
-            Five floating geometric nodes connected with animated light streams — passing
-            structured JSON context without heavyweight frameworks or ASCII clutter.
+          <p className={styles.prose} style={{ marginBottom: 'var(--space-8)' }}>
+            Sequential agent flow using IBM Granite reasoning and a queryable 12-table SQLite fact store.
           </p>
         </div>
 
-        <div className={styles.pipelineWrapper}>
-          <div className={styles.geometricPipeline}>
-            {PIPELINE.map((node, i) => (
-              <Fragment key={node.label}>
-                {/* Floating Glass Node */}
-                <motion.div
-                  className={styles.geometricNodeCard}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.4 }}
-                  transition={{ delay: i * 0.12, duration: 0.65, ease: EASE_EDITORIAL }}
-                  whileHover={{ y: -4, transition: { duration: 0.3 } }}
-                >
-                  <div className={styles.nodeHeader}>
-                    <span className={styles.nodePoint} />
-                    <span className={styles.nodeNum}>{node.num}</span>
-                  </div>
-                  <h4 className={styles.nodeLabel}>{node.label}</h4>
-                  <p className={styles.nodeSub}>{node.sub}</p>
-                </motion.div>
-
-                {/* Light-Stream Connector Line (No arrows, geometric minimal) */}
-                {i < PIPELINE.length - 1 && (
-                  <div className={styles.lightConnector}>
-                    <div className={styles.lightTrack}>
-                      <motion.div
-                        className={styles.lightPulse}
-                        initial={{ scaleX: 0 }}
-                        whileInView={{ scaleX: 1 }}
-                        viewport={{ once: true, amount: 0.4 }}
-                        transition={{ delay: i * 0.12 + 0.2, duration: 0.75, ease: EASE_EDITORIAL }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </Fragment>
-            ))}
-          </div>
+        <div style={{ marginTop: 'var(--space-4)' }}>
+          <ArchitectureDiagram />
         </div>
       </motion.section>
 
@@ -264,5 +220,6 @@ export default function LandingPage() {
     </div>
   )
 }
+
 
 

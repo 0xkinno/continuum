@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<style>body{background:#fff;display:flex;justify-content:center;padding:40px}</style>
+</head>
+<body>
+<div class="mermaid">
+flowchart TD
+    A["Upload chapters, scripts, character sheets"] -->|"raw file"| B["Docling Parser"]
+    B -->|"clean Markdown"| C["Ingestion Agent\n(IBM Granite via watsonx.ai)"]
+    C -->|"FactModel JSON"| D["Knowledge Agent\n(SQLite · 12 tables)"]
+    D -->|"stored facts"| E{{"New draft submitted"}}
+    E -->|"draft text"| F["Continuity Agent\n(IBM Granite · two-pass)"]
+    D -->|"retrieved facts"| F
+    F -->|"contradiction flags"| G["Explanation Agent\n(IBM Granite · editorial)"]
+    G -->|"editorial notes"| H["Inline flag annotations"]
+</div>
+</body>
+</html>

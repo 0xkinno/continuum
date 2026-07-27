@@ -17,13 +17,17 @@ Continuum ingests a creator's existing material, builds a living model of their 
 
 ## Product Screenshots
 
-| Manuscript workspace | Margin notes |
-|---|---|
-| ![Workspace](docs/screenshots/workspace.png) | ![Margin Notes](docs/screenshots/margin-notes.png) |
+<!-- All screenshots should be 1280x800 for consistent rendering -->
 
-| Canon (story bible) | Landing page |
+![Landing](docs/screenshots/landing.png)
+
+| Manuscript workspace | Canon (story bible) |
 |---|---|
-| ![Canon](docs/screenshots/canon.png) | ![Landing](docs/screenshots/landing.png) |
+| ![Workspace](docs/screenshots/workspace.png) | ![Canon](docs/screenshots/canon.png) |
+
+| Editor margin notes | History audit log |
+|---|---|
+| ![Margin Notes](docs/screenshots/margin-notes.png) | ![History](docs/screenshots/history.png) |
 
 ---
 
@@ -55,31 +59,16 @@ Continuum reads everything you have written, extracts structured facts (characte
 
 Four agents form a sequential pipeline. Each one has a single job.
 
-```
-  upload chapters, scripts, character sheets
-              |
-              v
-   +---------------------+
-   |   Ingestion Agent    |  parse documents, extract structured facts
-   +---------------------+
-              |
-              v
-   +---------------------+
-   |   Knowledge Agent    |  store, deduplicate, and retrieve facts
-   +---------------------+
-              |
-              v
-   +---------------------+
-   |  Continuity Agent    |  extract claims from new drafts,
-   |                      |  check each against known facts,
-   |                      |  flag mismatches with confidence
-   +---------------------+
-              |
-              v
-   +---------------------+
-   |  Explanation Agent   |  turn raw flags into editorial notes
-   |                      |  a human reads in seconds
-   +---------------------+
+```mermaid
+flowchart TD
+    A["Upload chapters, scripts, character sheets\n(.txt .md .pdf .docx)"] -->|"raw file"| B["Docling Parser"]
+    B -->|"clean Markdown"| C["Ingestion Agent\n(IBM Granite via watsonx.ai)"]
+    C -->|"FactModel JSON\ncharacters, events, rules, timeline"| D["Knowledge Agent\n(SQLite · 12 tables)"]
+    D -->|"stored facts"| E{{"New draft submitted"}}
+    E -->|"draft text"| F["Continuity Agent\n(IBM Granite · two-pass reasoning)"]
+    D -->|"retrieved facts"| F
+    F -->|"structured contradiction flags"| G["Explanation Agent\n(IBM Granite · editorial tone)"]
+    G -->|"editorial margin notes"| H["Inline flag annotations\nin the manuscript editor"]
 ```
 
 The output is not a system error. It reads like a note from a continuity editor: "Mira learns the binding word from Old Thessaly in Chapter 6, paragraph 3. As written in this draft, she uses it in Chapter 4. She should not know it yet."
@@ -117,7 +106,7 @@ Continuum ships four views, each with a distinct purpose.
 |---|---|
 | Frontend | Next.js 14 (App Router) . React . TypeScript . CSS Modules . Framer Motion |
 | Backend | Node.js . Fastify . TypeScript |
-| AI | IBM Granite (`granite-13b-instruct-v2`) via watsonx.ai |
+| AI | ibm/granite-4-h-small via watsonx.ai (/ml/v1/text/chat) |
 | Document parsing | Docling (Python, called as subprocess) |
 | Database | SQLite (Node 24 built-in `node:sqlite`) . 12-table relational schema |
 | Fonts | Fraunces (display) . Inter Tight (body) . IBM Plex Mono (labels) |
@@ -140,14 +129,14 @@ continuum/
 │       ├── types/             # facts.ts, continuity.ts
 │       └── __tests__/         # agent tests
 ├── docs/
-│   ├── adr/                   # 4 architecture decision records
-│   ├── screenshots/           # workspace, canon, margin-notes, landing, banner
+│   ├── adr/                   # 6 architecture decision records
+│   ├── screenshots/           # workspace, canon, margin-notes, landing, history, banner
 │   ├── BOB.md                 # IBM Bob usage log
 │   └── DEMO.md                # judge walkthrough
 ├── public/images/             # hero and canon-preview imagery
 ├── src/
 │   ├── app/                   # / (workspace), /canon, /history, /landing
-│   ├── components/            # Nav, MotionLayout
+│   ├── components/            # Nav, MotionLayout, ArchitectureDiagram
 │   ├── lib/                   # api.ts, types.ts
 │   └── styles/                # tokens.css, globals.css
 ├── INSTRUCTIONS.md
@@ -196,6 +185,9 @@ Every load-bearing decision is recorded as an ADR.
 | [ADR-002](docs/adr/ADR-002-sequential-pipeline.md) | Sequential agent pipeline rather than a multi-agent framework |
 | [ADR-003](docs/adr/ADR-003-sqlite-fact-store.md) | SQLite for the fact store rather than a vector database |
 | [ADR-004](docs/adr/ADR-004-granite-for-reasoning.md) | Granite for structured reasoning, not perception |
+| [ADR-005](docs/adr/ADR-005-chat-endpoint.md) | Chat endpoint over deprecated text generation |
+| [ADR-006](docs/adr/ADR-006-model-fallback.md) | No silent model fallback to non-IBM models |
+
 
 ---
 
