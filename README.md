@@ -36,8 +36,8 @@ Continuum ingests a creator's existing material, builds a living model of their 
 
 | Resource | Link |
 |---|---|
-| **Live Site** | [continuum.vercel.app](https://continuum.vercel.app) |
-| **Backend API** | [continuum-api.onrender.com](https://continuum-api.onrender.com) |
+| **Live Site** | [continuum-ecru-mu.vercel.app](https://continuum-ecru-mu.vercel.app) |
+| **Backend API** | [continuum-backend-60wn.onrender.com](https://continuum-backend-60wn.onrender.com) |
 | **GitHub** | [github.com/0xkinno/continuum](https://github.com/0xkinno/continuum) |
 | **Demo Video** | [Watch on YouTube](#) |
 | **Challenge** | IBM AI Builders Challenge, July 2026 |
