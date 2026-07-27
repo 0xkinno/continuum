@@ -2,7 +2,8 @@
 
 import { useRef, useCallback, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { uploadDocument, checkDraft, runSeedDemo, getDemoDraft } from '@/lib/api'
+import Link from 'next/link'
+import { uploadDocument, uploadImage, checkDraft, runSeedDemo, getDemoDraft } from '@/lib/api'
 import type { SeedProgressLine } from '@/lib/api'
 import type { ExplainedFlag } from '@/lib/types'
 import { useWorkspace } from '@/context/WorkspaceContext'
@@ -19,14 +20,10 @@ function buildHighlightedContent(
 ): React.ReactNode[] {
   if (flags.length === 0) return [<span key="text">{draftText}</span>]
 
-  // Build a set of claim texts to highlight (match by substring)
   const claimTexts = flags.map((f) => ({ claim: f.claim, flagNumber: f.flagNumber }))
-
-  // Split into segments: plain text vs flagged text
   const segments: { text: string; flagNumber: number | null }[] = []
   let remaining = draftText
 
-  // Simple greedy matching — find each claim text in the remaining string
   while (remaining.length > 0) {
     let earliest = -1
     let earliestClaim = ''
@@ -69,6 +66,21 @@ function buildHighlightedContent(
   )
 }
 
+function getAssociatedCharacter(flag: ExplainedFlag): string {
+  const text = `${flag.claim} ${flag.conflictsWith} ${flag.explanation}`.toLowerCase()
+  if (text.includes('fenwick')) return 'Fenwick Pale'
+  if (text.includes('aldric')) return 'Aldric Voss'
+  if (text.includes('bram')) return 'Bram Colwick'
+  if (text.includes('ystra')) return 'Councillor Ystra'
+  return 'Maren Ashcroft'
+}
+
+function getConfidencePercentage(level: string): string {
+  if (level === 'high') return 'HIGH (90%)'
+  if (level === 'medium') return 'MEDIUM (65%)'
+  return 'LOW (40%)'
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function ManuscriptPage() {
@@ -81,8 +93,6 @@ export default function ManuscriptPage() {
   const [uploading, setUploading]     = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [dragging, setDragging]       = useState(false)
-  // Seed demo state — transient progress feedback for the run in flight,
-  // not part of the persisted workspace state.
   const [seeding, setSeeding]         = useState(false)
   const [seedLog, setSeedLog]         = useState<SeedProgressLine[]>([])
   const [seedDone, setSeedDone]       = useState(false)
@@ -99,13 +109,11 @@ export default function ManuscriptPage() {
     try {
       await runSeedDemo((line) => {
         setSeedLog((prev) => [...prev, line])
-        // Auto-scroll seed log
         setTimeout(() => {
           if (seedLogRef.current) {
             seedLogRef.current.scrollTop = seedLogRef.current.scrollHeight
           }
         }, 0)
-        // When done, refresh sources and load the test draft into editor
         if (line.step === 'done' && line.status !== 'error') {
           refreshSources()
           getDemoDraft().then((res) => {
@@ -134,10 +142,13 @@ export default function ManuscriptPage() {
   const handleFiles = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return
     const file = files[0]
+    const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'))
+    const isImage = ['.jpg', '.jpeg', '.png'].includes(ext)
+
     setUploadError(null)
     setUploading(true)
     try {
-      const res = await uploadDocument(file)
+      const res = isImage ? await uploadImage(file) : await uploadDocument(file)
       if (!res.success) {
         setUploadError(res.error ?? 'Upload failed.')
       } else {
@@ -260,19 +271,19 @@ export default function ManuscriptPage() {
             role="button"
             tabIndex={0}
             onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
-            aria-label="Upload document"
+            aria-label="Upload document or image"
           >
             <span className={styles.dropzoneIcon}>↑</span>
             <p className={styles.dropzoneText}>
-              Drop a document or click to upload
+              Drop a document or image to ingest
             </p>
-            <p className={styles.dropzoneFormats}>txt · md · pdf · docx</p>
+            <p className={styles.dropzoneFormats}>txt · md · pdf · docx · jpg · png</p>
           </div>
 
           <input
             ref={fileInputRef}
             type="file"
-            accept=".txt,.md,.pdf,.docx"
+            accept=".txt,.md,.pdf,.docx,.jpg,.jpeg,.png"
             style={{ display: 'none' }}
             onChange={(e) => handleFiles(e.target.files)}
           />
@@ -311,15 +322,26 @@ export default function ManuscriptPage() {
           {sources.length > 0 && (
             <>
               <p className={styles.sourceListHeading}>Ingested</p>
-              {sources.map((src) => (
-                <div key={src.id} className={styles.sourceItem}>
-                  <p className={styles.sourceName}>{src.label}</p>
-                  <div className={styles.sourceMeta}>
-                    <span>{src.coverage || '—'}</span>
-                    <span className={`${styles.statusBadge} ${styles.ready}`}>Ready</span>
+              {sources.map((src) => {
+                const isImage = (src as any).sourceType === 'image' || src.label.toLowerCase().match(/\.(jpg|jpeg|png)$/)
+                return (
+                  <div key={src.id} className={styles.sourceItem}>
+                    <p className={`${styles.sourceName} flex items-center gap-1.5`}>
+                      {isImage && (
+                        <svg className="w-3.5 h-3.5 text-amber-800 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                          <circle cx="12" cy="13" r="3" strokeWidth="2" />
+                        </svg>
+                      )}
+                      <span>{src.label}</span>
+                    </p>
+                    <div className={styles.sourceMeta}>
+                      <span>{src.coverage || (isImage ? 'Visual Artifact' : '—')}</span>
+                      <span className={`${styles.statusBadge} ${styles.ready}`}>Ready</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </>
           )}
         </div>
@@ -362,7 +384,6 @@ export default function ManuscriptPage() {
         </div>
 
         <div className={styles.editorBody}>
-          {/* Show highlighted overlay when results exist, raw textarea otherwise */}
           {hasResults && explained.length > 0 ? (
             <div className={styles.draftOverlay}>
               {buildHighlightedContent(draftText, explained, activeFlagNum, handleFlagClick)}
@@ -377,7 +398,6 @@ export default function ManuscriptPage() {
             />
           )}
 
-          {/* "Edit draft" link when in overlay mode */}
           {hasResults && (
             <div style={{ maxWidth: '680px', margin: '0 auto', marginTop: 'var(--space-4)' }}>
               <button
@@ -414,29 +434,58 @@ export default function ManuscriptPage() {
                 </p>
               </motion.div>
             ) : (
-              explained.map((flag) => (
-                <motion.div
-                  key={flag.flagNumber}
-                  ref={(el) => { noteRefs.current[flag.flagNumber] = el }}
-                  initial={{ opacity: 0, x: 12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 12 }}
-                  transition={{ delay: flag.flagNumber * 0.08, duration: 0.3 }}
-                  className={`${styles.noteCard} ${activeFlagNum === flag.flagNumber ? styles.active : ''}`}
-                  onClick={() => setActiveFlagNum(flag.flagNumber)}
-                  role="button"
-                  tabIndex={0}
-                >
-                  <div className={styles.noteHeader}>
-                    <span className={styles.noteType}>{flag.flagType}</span>
-                    <span className={styles.noteConfidence}>{flag.confidence}</span>
-                  </div>
-                  <p className={styles.noteExplanation}>{flag.explanation}</p>
-                  <p className={styles.noteSource}>
-                    Established in: {flag.establishedIn}
-                  </p>
-                </motion.div>
-              ))
+              explained.map((flag) => {
+                const assocChar = getAssociatedCharacter(flag)
+                return (
+                  <motion.div
+                    key={flag.flagNumber}
+                    ref={(el) => { noteRefs.current[flag.flagNumber] = el }}
+                    initial={{ opacity: 0, x: 12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 12 }}
+                    transition={{ delay: flag.flagNumber * 0.08, duration: 0.3 }}
+                    className={`${styles.noteCard} ${activeFlagNum === flag.flagNumber ? styles.active : ''}`}
+                    onClick={() => setActiveFlagNum(flag.flagNumber)}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <div className={styles.noteHeader}>
+                      <span className={styles.noteType}>{flag.flagType}</span>
+                      <span className={styles.noteConfidence}>
+                        {getConfidencePercentage(flag.confidence)}
+                      </span>
+                    </div>
+
+                    <p className={styles.noteExplanation}>{flag.explanation}</p>
+
+                    {/* SUGGESTED FIX */}
+                    {flag.suggestedFix && (
+                      <div className="mt-3 pt-2.5 border-t border-amber-950/10">
+                        <span className="font-mono text-[9px] uppercase tracking-widest text-[var(--color-ink-soft)] block mb-1">
+                          SUGGESTED FIX
+                        </span>
+                        <p className="font-sans text-xs italic text-amber-950 leading-relaxed font-medium">
+                          {flag.suggestedFix}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="mt-3 pt-2 border-t border-amber-950/5 flex items-center justify-between gap-2">
+                      <p className={styles.noteSource}>
+                        Established in: {flag.establishedIn}
+                      </p>
+
+                      <Link
+                        href={`/canon?tab=graph&character=${encodeURIComponent(assocChar)}`}
+                        className="font-mono text-[10px] text-amber-900 hover:underline shrink-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        View in Story Graph →
+                      </Link>
+                    </div>
+                  </motion.div>
+                )
+              })
             )}
           </AnimatePresence>
         </div>

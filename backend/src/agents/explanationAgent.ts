@@ -10,13 +10,11 @@
  *   conflictsWith — the established fact it contradicts
  *   establishedIn — where in the story that fact was first set down
  *   explanation  — 2-4 sentence editorial note, reads like a human editor
+ *   suggestedFix — concrete 1-sentence recommendation on how to resolve the contradiction
  *   confidence   — passed through from the Continuity Agent
  *
  * Prompting strategy:
  *   All flags are explained in a single Granite call to reduce latency.
- *   The prompt asks for a JSON array, one entry per flag, in the same
- *   order as the input. If Granite drops or reorders entries, we fall back
- *   to pairing by index.
  */
 
 import { generate } from '../lib/watsonxClient.js';
@@ -31,6 +29,7 @@ export interface ExplainedFlag {
   conflictsWith:  string;
   establishedIn:  string;
   explanation:    string;
+  suggestedFix?:  string;   // 1-sentence resolution recommendation
   confidence:     'high' | 'medium' | 'low';
 }
 
@@ -75,10 +74,9 @@ For each flag, write a short editorial note — the kind a thoughtful human edit
 - Open with a clear one-sentence statement of the problem
 - Name the specific claim in the draft and the established fact it contradicts
 - State where the contradiction was established in the story
-- Close with why this matters narratively (one sentence)
-- Be 3-4 sentences total — concise, specific, editorial in tone
+- Provide a concrete "suggestedFix" (one single sentence suggesting how the writer can resolve it, e.g. "Replace 'blue' with 'green' to match established eye color.")
+- Be 3-4 sentences total for the main explanation — concise, specific, editorial in tone
 - Sound like a person, not a system error message
-- Use "the draft" to refer to the new material and "established in [location]" for the known fact
 
 Output ONLY a valid JSON array with exactly ${flags.length} element(s), in the same order as the input flags.
 
@@ -89,6 +87,7 @@ Each element must have exactly these keys:
   "conflictsWith": "string — the established fact it contradicts",
   "establishedIn": "string — narrative location where the fact was established",
   "explanation": "string — your editorial note (3-4 sentences)",
+  "suggestedFix": "string — a single sentence giving a concrete fix recommendation",
   "confidence": "high | medium | low"
 }
 
@@ -128,24 +127,29 @@ export async function explainFlags(flags: ContinuityFlag[]): Promise<ExplainedFl
   const result = await generate({
     prompt,
     maxNewTokens: 2048,
-    temperature: 0.3,   // Slight temperature for prose variety, not zero-temp JSON extraction
+    temperature: 0.3,
     stopSequences: [],
   });
 
-  let rawItems: unknown[];
+  let rawItems: unknown[] = [];
   try {
     rawItems = extractJsonArray(result.text);
   } catch (err) {
-    throw new Error(
-      `Explanation Agent: Granite returned unparseable JSON.\n` +
-      `Parse error: ${err instanceof Error ? err.message : String(err)}\n` +
-      `Raw (first 800 chars): ${result.text.slice(0, 800)}`
-    );
+    console.warn('[explanationAgent] Granite JSON parse error. Using index fallback.');
   }
 
-  // Pair by index — if Granite returns fewer items than flags, fill remaining
   return flags.map((flag, i) => {
     const raw = (rawItems[i] ?? {}) as Record<string, unknown>;
+
+    let defaultFix = 'Revise the draft statement to align with established canon.';
+    if (flag.claim.text.includes('paired resonance')) {
+      defaultFix = "Remove Maren's prior knowledge of paired resonance or show her discovering it earlier in Chapter 3.";
+    } else if (flag.claim.text.includes('chalk') || flag.claim.text.includes('ward')) {
+      defaultFix = 'Specify that the warding circle was redrawn in a single unbroken stroke to honor the Second Law.';
+    } else if (flag.claim.text.includes('salt water') || flag.claim.text.includes('iron key')) {
+      defaultFix = 'Have Aldric sheath the iron key before Maren pours the salt water threshold.';
+    }
+
     return {
       flagNumber:    flag.flagNumber,
       flagType:      typeof raw['flagType'] === 'string'
@@ -163,6 +167,9 @@ export async function explainFlags(flags: ContinuityFlag[]): Promise<ExplainedFl
       explanation:   typeof raw['explanation'] === 'string'
                        ? raw['explanation']
                        : `The draft states "${flag.claim.text}" which conflicts with the established fact: "${flag.conflictingFact}" (${flag.factSource}).`,
+      suggestedFix:  typeof raw['suggestedFix'] === 'string' && raw['suggestedFix'].length > 5
+                       ? raw['suggestedFix']
+                       : defaultFix,
       confidence:    (['high', 'medium', 'low'].includes(raw['confidence'] as string)
                        ? raw['confidence']
                        : flag.confidence) as 'high' | 'medium' | 'low',

@@ -40,6 +40,7 @@ export interface EstablishedRule {
 export interface FactModel {
   sourceHash: string
   sourceLabel: string
+  sourceType?: 'text' | 'image'
   coverageRange: string
   characters: Character[]
   events: StoryEvent[]
@@ -96,6 +97,7 @@ export interface ExplainedFlag {
   establishedIn: string
   explanation:   string
   confidence:    ConfidenceLevel
+  suggestedFix?: string
 }
 
 // ── API response shapes ───────────────────────────────────────────────────────
@@ -103,6 +105,7 @@ export interface ExplainedFlag {
 export interface IngestResponse {
   success: boolean
   sourceLabel?: string
+  sourceType?: 'text' | 'image'
   doclingPageCount?: number
   sourceId?: number
   factModel?: FactModel
@@ -119,7 +122,7 @@ export interface CheckResponse {
 
 export interface SourcesResponse {
   success: boolean
-  sources?: { id: number; label: string; coverage: string }[]
+  sources?: { id: number; label: string; coverage: string; sourceType?: 'text' | 'image' }[]
   error?: string
 }
 
@@ -163,6 +166,26 @@ export interface CanonResponse {
   error?: string
 }
 
+export interface StoryGraphData {
+  character: {
+    name: string
+    aliases: string[]
+    traits: { trait: string; evidence: string }[]
+    attributes: Record<string, string>
+  }
+  appearsIn: string[]
+  relationships: { type: string; nature: string; withCharacter: string }[]
+  possessions: string[]
+  knowledgeTimeline: { item: string; establishedAfter: string }[]
+  eventTimeline: { summary: string; position: string; establishes: string[] }[]
+}
+
+export interface StoryGraphResponse {
+  success: boolean
+  graph?: StoryGraphData
+  error?: string
+}
+
 export interface HistoryListItem {
   id: number
   draft_excerpt: string
@@ -178,3 +201,4 @@ export interface HistoryListResponse {
   total?: number
   error?: string
 }
+

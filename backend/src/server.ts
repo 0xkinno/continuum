@@ -3,8 +3,8 @@
  * Mounts all route plugins and starts the HTTP server.
  *
  * Phase 1:  /health       — health-check
- * Phase 2:  /ingest       — file upload → Docling → Granite fact-extraction
- * Phase 3:  /knowledge    — SQLite fact store (upsert + retrieval)
+ * Phase 2:  /ingest       — file upload & image upload → Groq / Docling → Granite fact-extraction
+ * Phase 3:  /knowledge    — SQLite fact store & Story Graph (upsert + retrieval)
  * Phase 4:  /continuity   — draft contradiction-checking
  * Phase 5:  /history      — check history log
  * Phase 7:  /seed         — demo seeding endpoint
@@ -19,7 +19,9 @@ import { fileURLToPath } from 'node:url';
 
 import { healthRoutes } from './routes/health.js';
 import { ingestRoutes } from './routes/ingest.js';
+import { ingestImageRoutes } from './routes/ingestImage.js';
 import { knowledgeRoutes } from './routes/knowledge.js';
+import { knowledgeGraphRoutes } from './routes/knowledgeGraph.js';
 import { continuityRoutes } from './routes/continuity.js';
 import { historyRoutes } from './routes/history.js';
 import { seedRoutes } from './routes/seed.js';
@@ -68,18 +70,20 @@ async function buildApp() {
     methods: ['GET', 'POST', 'OPTIONS'],
   });
 
-  // Max upload: 50 MB — generous for a multi-chapter document.
+  // Max upload: 50 MB — generous for multi-chapter & high-res image documents.
   await app.register(multipart, {
     limits: { fileSize: 50 * 1024 * 1024 },
   });
 
   // ── Routes ────────────────────────────────────────────────────────────────
   await app.register(healthRoutes);
-  await app.register(ingestRoutes,     { prefix: '/ingest' });
-  await app.register(knowledgeRoutes,  { prefix: '/knowledge' });
-  await app.register(continuityRoutes, { prefix: '/continuity' });
-  await app.register(historyRoutes,    { prefix: '/history' });
-  await app.register(seedRoutes,       { prefix: '/seed' });
+  await app.register(ingestRoutes,         { prefix: '/ingest' });
+  await app.register(ingestImageRoutes,    { prefix: '/ingest' });
+  await app.register(knowledgeRoutes,      { prefix: '/knowledge' });
+  await app.register(knowledgeGraphRoutes, { prefix: '/knowledge' });
+  await app.register(continuityRoutes,     { prefix: '/continuity' });
+  await app.register(historyRoutes,        { prefix: '/history' });
+  await app.register(seedRoutes,           { prefix: '/seed' });
 
   return app;
 }

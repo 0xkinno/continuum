@@ -282,7 +282,8 @@ function normalizePartial(raw: unknown): PartialFactModel {
  */
 export async function extractFacts(
   markdownText: string,
-  sourceLabel: string
+  sourceLabel: string,
+  sourceType: 'text' | 'image' = 'text'
 ): Promise<FactModel> {
   const sourceHash = createHash('sha256').update(markdownText).digest('hex');
   const chunks = chunkText(markdownText, CHUNK_CHAR_LIMIT);
@@ -326,11 +327,12 @@ export async function extractFacts(
       ? labels.length === 1
         ? labels[0]
         : `${labels[0]} – ${labels[labels.length - 1]}`
-      : 'Unknown';
+      : 'Visual Artifact';
 
   return {
     sourceHash,
     sourceLabel,
+    sourceType,
     coverageRange,
     ...merged,
     extractedAt: new Date().toISOString(),

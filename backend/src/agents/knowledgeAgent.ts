@@ -70,7 +70,7 @@ export interface RetrievedFacts {
 
 // ── Row types returned by node:sqlite ────────────────────────────────────────
 
-interface SourceRow     { id: number; label: string; coverage: string }
+export interface SourceRow { id: number; label: string; coverage: string; sourceType: 'text' | 'image' }
 interface CharRow       { id: number; name: string }
 interface AliasRow      { alias: string }
 interface TraitRow      { trait: string; evidence: string; label: string }
@@ -95,9 +95,9 @@ export function upsertFactModel(factModel: FactModel): number {
   // ── Source ────────────────────────────────────────────────────────────────
   // INSERT OR IGNORE: if sha256 already exists we skip and fetch the existing id
   db.prepare(`
-    INSERT OR IGNORE INTO sources (sha256, label, coverage, extracted_at)
-    VALUES (?, ?, ?, ?)
-  `).run(factModel.sourceHash, factModel.sourceLabel, factModel.coverageRange, factModel.extractedAt);
+    INSERT OR IGNORE INTO sources (sha256, label, source_type, coverage, extracted_at)
+    VALUES (?, ?, ?, ?, ?)
+  `).run(factModel.sourceHash, factModel.sourceLabel, factModel.sourceType ?? 'text', factModel.coverageRange, factModel.extractedAt);
 
   const sourceRow = db.prepare(`SELECT id FROM sources WHERE sha256 = ?`).get(factModel.sourceHash) as { id: number };
   const sourceId = sourceRow.id;
@@ -366,7 +366,15 @@ export function retrieveFacts(query: string): RetrievedFacts {
 
 // ── 3. LIST SOURCES ───────────────────────────────────────────────────────────
 
+export interface SourceRow { id: number; label: string; coverage: string; sourceType: 'text' | 'image' }
+
 export function listSources(): SourceRow[] {
   const db = getDb();
-  return db.prepare(`SELECT id, label, coverage FROM sources ORDER BY id`).all() as unknown as SourceRow[];
+  const rows = db.prepare(`SELECT id, label, source_type, coverage FROM sources ORDER BY id`).all() as any[];
+  return rows.map((r) => ({
+    id: r.id,
+    label: r.label,
+    coverage: r.coverage,
+    sourceType: (r.source_type as 'text' | 'image') ?? 'text',
+  }));
 }

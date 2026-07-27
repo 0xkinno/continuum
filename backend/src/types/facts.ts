@@ -75,6 +75,8 @@ export interface FactModel {
   sourceHash: string;
   /** Human-readable label for the document, e.g. filename */
   sourceLabel: string;
+  /** Media type of the source: "text" | "image" */
+  sourceType?: 'text' | 'image';
   /** Narrative position range this document covers */
   coverageRange: string;
   characters: Character[];
@@ -86,3 +88,13 @@ export interface FactModel {
   /** ISO timestamp of when this model was extracted */
   extractedAt: string;
 }
+
+export interface SourceDocument {
+  id: number;
+  sourceLabel: string;
+  sourceHash: string;
+  sourceType?: 'text' | 'image';
+  coverageRange: string;
+  ingestedAt: string;
+}
+

@@ -39,11 +39,13 @@ CREATE TABLE IF NOT EXISTS sources (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   sha256       TEXT    NOT NULL UNIQUE,  -- SHA-256 of raw Markdown content
   label        TEXT    NOT NULL,         -- original filename / title
+  source_type  TEXT    NOT NULL DEFAULT 'text', -- 'text' | 'image'
   coverage     TEXT    NOT NULL DEFAULT '',
   extracted_at TEXT    NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_sources_sha256 ON sources(sha256);
+
 
 /* ── Characters ──────────────────────────────────────────────────────────── */
 
@@ -197,6 +199,11 @@ export function getDb(): DatabaseSync {
   _db = new DatabaseSync(DB_PATH);
   // Apply schema in a single exec — safe to call on every startup
   _db.exec(SCHEMA_SQL);
+  try {
+    _db.exec(`ALTER TABLE sources ADD COLUMN source_type TEXT NOT NULL DEFAULT 'text';`);
+  } catch {
+    // Column already exists
+  }
   return _db;
 }
 

@@ -44,6 +44,13 @@ export async function uploadDocument(file: File): Promise<IngestResponse> {
   return safeJson<IngestResponse>(res, 'Failed to upload document.')
 }
 
+export async function uploadImage(file: File): Promise<IngestResponse> {
+  const form = new FormData()
+  form.append('file', file)
+  const res = await fetch(`${BASE}/ingest/image`, { method: 'POST', body: form })
+  return safeJson<IngestResponse>(res, 'Failed to upload image.')
+}
+
 // ── Knowledge ─────────────────────────────────────────────────────────────────
 
 export async function getSources(): Promise<SourcesResponse> {
@@ -54,6 +61,11 @@ export async function getSources(): Promise<SourcesResponse> {
 export async function getCanon(): Promise<CanonResponse> {
   const res = await fetch(`${BASE}/knowledge/query?q=all+world+rules+and+events+and+characters`)
   return safeJson<CanonResponse>(res, 'Failed to fetch canon.')
+}
+
+export async function getStoryGraph(characterName: string): Promise<import('./types').StoryGraphResponse> {
+  const res = await fetch(`${BASE}/knowledge/graph/${encodeURIComponent(characterName)}`)
+  return safeJson<import('./types').StoryGraphResponse>(res, 'Failed to fetch story graph.')
 }
 
 // ── Continuity check ──────────────────────────────────────────────────────────

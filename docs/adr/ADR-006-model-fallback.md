@@ -16,3 +16,13 @@ a hidden non-IBM call.
 
 ## Status
 Accepted
+
+## Update: Scoped exception for image ingestion
+
+The original decision holds for text-based reasoning. However, watsonx.ai
+has no vision-capable Granite model in this region (see ADR-004). Image
+ingestion uses Groq Vision solely as an image-to-text description
+step. The resulting description is passed through the same Granite-powered
+Ingestion Agent as any other source. Granite remains the sole reasoning
+engine for fact extraction and continuity checking. This is disclosed
+rather than hidden.
