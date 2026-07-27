@@ -1,4 +1,7 @@
 # Continuum
+
+![Continuum](docs/screenshots/landing.png)
+
 ### The creative continuity engine
 
 ![Theme](https://img.shields.io/badge/Theme-Creative_Industries-D4A843?style=flat-square&labelColor=17161A)
@@ -18,8 +21,6 @@ Continuum ingests a creator's existing material, builds a living model of their 
 ## Product Screenshots
 
 <!-- All screenshots should be 1280x800 for consistent rendering -->
-
-![Landing](docs/screenshots/landing.png)
 
 | Manuscript workspace | Canon (story bible) |
 |---|---|
@@ -72,6 +73,11 @@ flowchart TD
 ```
 
 The output is not a system error. It reads like a note from a continuity editor: "Mira learns the binding word from Old Thessaly in Chapter 6, paragraph 3. As written in this draft, she uses it in Chapter 4. She should not know it yet."
+
+### System diagram
+
+![Architecture](docs/screenshots/architecture.png)
+
 
 ---
 
