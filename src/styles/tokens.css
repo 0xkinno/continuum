@@ -1,0 +1,136 @@
+/* =============================================================
+   Continuum — Design Tokens (v3 Flagship Master)
+   Editorial System: Warm Monochrome + Muted Brass (#C39B4B) + Burgundy Flags
+   Cormorant Garamond (Canela style display) · Geist (Söhne style body)
+   ============================================================= */
+
+:root {
+  /* ── Typography families ────────────────────────────────── */
+  --font-serif: var(--font-serif-loaded), 'Canela', 'PP Editorial New', 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Geist', 'Söhne', 'Neue Haas Grotesk', -apple-system, sans-serif;
+  --font-mono: 'Geist', 'Söhne', -apple-system, sans-serif;
+
+  /* ── Type scale & Optical spacing ────────────────────────── */
+  --text-2xs:  0.625rem;   /* 10px */
+  --text-xs:   0.75rem;    /* 12px — nav/eyebrow */
+  --text-sm:   0.8125rem;  /* 13px — captions, metadata */
+  --text-base: 0.875rem;   /* 14px — card body */
+  --text-md:   1rem;       /* 16px — explanations */
+  --text-lg:   1.1875rem;  /* 19px — body copy */
+  --text-xl:   1.375rem;   /* 22px — subhead */
+  --text-2xl:  1.75rem;    /* 28px — card title */
+  --text-3xl:  2.25rem;    /* 36px — section eyebrow */
+  --text-4xl:  3rem;       /* 48px — feature head */
+  --text-5xl:  3.5rem;     /* 56px — section head */
+  --text-6xl:  4.25rem;    /* 68px — page title */
+  --text-7xl:  5.25rem;    /* 84px — hero display headline (72–88px) */
+
+  /* ── Font weight ────────────────────────────────────────── */
+  --weight-light:   300;
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold:600;
+  --weight-bold:    700;
+
+  /* ── Optical Line height ───────────────────────────────── */
+  --leading-tight:  1.08;
+  --leading-snug:   1.25;
+  --leading-normal: 1.6;
+  --leading-body:   1.75;
+  --leading-loose:  1.9;
+
+  /* ── Optical Letter spacing ────────────────────────────── */
+  --tracking-tight:  -0.025em;
+  --tracking-normal:  0em;
+  --tracking-wide:    0.08em;
+  --tracking-widest:  0.14em;
+
+  /* ── Color palette ──────────────────────────────────────────
+     Warm neutral campaign palette. Muted brass (#C39B4B, #B88B4A, #C8AE72).
+  ─────────────────────────────────────────────────────────── */
+  --color-paper:      #FBF9F5;  /* primary warm paper background */
+  --color-paper-dim:  #F3EFE6;  /* secondary surfaces, cards      */
+  --color-paper-0:    #FFFFFF;  /* pure white glass               */
+
+  --color-ink:        #1A1918;  /* deep charcoal headline ink     */
+  --color-ink-soft:   #5C5852;  /* secondary text, airy body copy */
+  --color-hero-sub:   #3D3A37;  /* warm charcoal subhead ink      */
+
+  --color-rule:       #E2DCD0;  /* subtle hairline borders        */
+
+  --color-accent:        #8B2E2E;                 /* burgundy — flags only */
+  --color-accent-tint:   rgba(139, 46, 46, 0.08);
+  --color-amber-tint:    rgba(195, 155, 75, 0.12); /* inline flag highlight */
+  --color-amber:         #C39B4B;                 /* muted brass eyebrow/label ink */
+  --color-amber-dark:    #B88B4A;                 /* warm bronze tone */
+  --color-amber-light:   #C8AE72;                 /* muted gold tone */
+
+  --color-success:    #2E7A57;
+  --color-success-tint: rgba(46, 122, 87, 0.10);
+
+  /* ── Subtle Glassmorphism ───────────────────────────────── */
+  --glass-bg:       rgba(255, 255, 255, 0.45);
+  --glass-bg-hover: rgba(255, 255, 255, 0.75);
+  --glass-blur:     12px;
+
+  /* ── Spacing scale — disciplined 8px grid ───────────────── */
+  --space-1:  0.25rem;  /*  4px */
+  --space-2:  0.5rem;   /*  8px */
+  --space-3:  0.75rem;  /* 12px */
+  --space-4:  1rem;     /* 16px */
+  --space-5:  1.25rem;  /* 20px */
+  --space-6:  1.5rem;   /* 24px */
+  --space-8:  2rem;     /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+  --space-32: 8rem;     /* 128px */
+  --space-40: 10rem;    /* 160px */
+
+  /* ── Motion easing — unified physical motion language ────── */
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-soft:  cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── Layout grid & measures ─────────────────────────────── */
+  --max-width-prose:  68ch;
+  --max-width-layout: 1200px;
+  --max-width-narrow: 760px;
+
+  /* ── Tiered Border Radius System ─────────────────────────── */
+  --radius-none: 0px;
+  --radius-card-lg: 20px;
+  --radius-card-md: 15px;
+  --radius-btn:     14px;
+  --radius-sm:      8px;
+
+  /* ── Border ─────────────────────────────────────────────── */
+  --border-hairline: 1px solid var(--color-rule);
+  --border-accent:   1px solid var(--color-accent);
+  --border-ink:      1px solid var(--color-ink);
+
+  /* ── Shadow — physical elevation ────────────────────────── */
+  --shadow-sm: 0 2px 10px rgba(26, 25, 24, 0.04);
+  --shadow-md: 0 6px 20px rgba(26, 25, 24, 0.06);
+  --shadow-lift: 0 24px 48px -16px rgba(26, 25, 24, 0.12);
+
+  /* ── Ambient Muted Brass Glow — Restrained warm light ───── */
+  --glow-gold:   0 0 0 1px rgba(195, 155, 75, 0.35), 0 12px 32px -8px rgba(195, 155, 75, 0.18);
+  --glow-ivory:  0 0 28px rgba(255, 248, 230, 0.6);
+  --border-glow: 1px solid rgba(195, 155, 75, 0.45);
+
+  /* ── Transition — luxury physical motion pacing ─────────── */
+  --transition-fast:   220ms var(--ease-editorial);
+  --transition-normal: 350ms var(--ease-editorial);
+  --transition-luxury: 650ms var(--ease-editorial);
+
+  /* ── Z-index layers ─────────────────────────────────────── */
+  --z-base:    0;
+  --z-raised:  10;
+  --z-overlay: 100;
+  --z-modal:   200;
+  --z-toast:   300;
+}
+
+

@@ -1,0 +1,82 @@
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-overlay);
+  background: rgba(251, 249, 245, 0.88);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border-bottom: var(--border-hairline);
+  padding: 0 var(--space-10);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background var(--transition-normal);
+}
+
+.wordmark {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-regular);
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  transition: opacity var(--transition-fast);
+}
+
+.wordmark:hover {
+  opacity: 0.75;
+}
+
+.wordmark span {
+  color: var(--color-amber);
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-10);
+  list-style: none;
+}
+
+.link {
+  position: relative;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400; /* Söhne Book */
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+  padding: var(--space-2) 0;
+  transition: color var(--transition-luxury);
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: var(--color-ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 400ms var(--ease-editorial);
+}
+
+.link:hover {
+  color: var(--color-ink);
+}
+
+.link:hover::after {
+  transform: scaleX(1);
+}
+
+.link.active {
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.link.active::after {
+  transform: scaleX(1);
+}
+

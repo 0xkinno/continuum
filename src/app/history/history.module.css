@@ -1,0 +1,188 @@
+.page {
+  max-width: var(--max-width-narrow);
+  margin: 0 auto;
+  padding: 0 var(--space-8) var(--space-20);
+}
+
+/* ── Hero banner — 34vh height, quiet editorial fade ─────────────────────── */
+
+.hero {
+  position: relative;
+  height: 34vh;
+  min-height: 260px;
+  max-height: 380px;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-bottom: var(--space-12);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  border-bottom: var(--border-hairline);
+}
+
+.heroImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 130%;
+  object-fit: cover;
+  object-position: center 35%;
+  will-change: transform;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(251, 249, 245, 0.15) 0%, rgba(251, 249, 245, 0.96) 100%);
+}
+
+.pageHeader {
+  position: relative;
+  z-index: 1;
+  padding: 0 var(--space-10) var(--space-8);
+  width: 100%;
+  max-width: var(--max-width-narrow);
+  margin: 0 auto;
+}
+
+.pageEyebrow {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-amber);
+  margin-bottom: var(--space-3);
+}
+
+.pageTitle {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 4vw, var(--text-6xl));
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  color: var(--color-ink);
+  line-height: 1.1;
+  margin-bottom: var(--space-3);
+}
+
+.pageSubtitle {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--color-ink-soft);
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+/* ── Timeline List — 15px glass cards with gold hover glow ──────────────── */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: var(--space-6) var(--space-7);
+  border: var(--border-hairline);
+  border-radius: var(--radius-card-md);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition:
+    transform var(--transition-luxury),
+    border-color var(--transition-luxury),
+    box-shadow var(--transition-luxury),
+    background var(--transition-luxury);
+  gap: var(--space-4);
+}
+
+.row:hover {
+  transform: translateY(-3px);
+  border-color: rgba(195, 155, 75, 0.45);
+  box-shadow: var(--glow-gold);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.rowLeft {
+  min-width: 0;
+}
+
+.excerpt {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 400;
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: var(--space-2);
+}
+
+.meta {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--color-ink-soft);
+  display: flex;
+  gap: var(--space-4);
+}
+
+.flagBadge {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px var(--space-3);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.flagBadge.hasFlags {
+  background: var(--color-accent);
+  color: var(--color-paper);
+}
+
+.flagBadge.noFlags {
+  background: var(--color-success);
+  color: var(--color-paper);
+}
+
+/* ── Empty State ─────────────────────────────────────────────────────────── */
+
+.empty {
+  padding: var(--space-16) var(--space-8);
+  text-align: center;
+  background: rgba(255, 255, 255, 0.5);
+  border: var(--border-hairline);
+  border-radius: var(--radius-card-md);
+}
+
+.emptyLabel {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+  margin-bottom: var(--space-3);
+}
+
+.emptyText {
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  color: var(--color-ink-soft);
+}
+
+.loading {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--color-ink-soft);
+  padding: var(--space-12);
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+

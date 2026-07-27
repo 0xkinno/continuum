@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install backend
+        run: cd continuum/backend && npm install
+      - name: Type check
+        run: cd continuum/backend && npx tsc --noEmit
+      - name: Test
+        run: cd continuum/backend && npm test
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install frontend
+        run: cd continuum && npm install
+      - name: Type check
+        run: cd continuum && npx tsc --noEmit
+      - name: Build
+        run: cd continuum && npm run build

@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+**/node_modules/
+/.pnpm-store
+
+# Next.js build output
+.next/
+/.next/
+/out/
+tsconfig.tsbuildinfo
+
+# Environment variables & secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+*.env.local
+*.env.*
+**/*.env
+**/*.env.*
+
+# Explicitly keep .env.example with placeholders
+!.env.example
+!**/.env.example
+
+# Databases & WAL files
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+**/*.db
+**/*.db-wal
+**/*.db-shm
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+
+# Operating system files
+.DS_Store
+Thumbs.db
