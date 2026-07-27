@@ -26,9 +26,9 @@ Continuum ingests a creator's existing material, builds a living model of their 
 |---|---|
 | ![Workspace](docs/screenshots/workspace.png) | ![Canon](docs/screenshots/canon.png) |
 
-| Editor margin notes | History audit log |
+| Canon characters | History audit log |
 |---|---|
-| ![Margin Notes](docs/screenshots/margin-notes.png) | ![History](docs/screenshots/history.png) |
+| ![Characters](docs/screenshots/characters.png) | ![History](docs/screenshots/history.png) |
 
 ---
 
