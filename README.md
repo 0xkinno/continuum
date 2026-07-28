@@ -366,7 +366,7 @@ npm run dev                    # http://localhost:3000
 
 **3. Load the demo project**
 
-Open the workspace at `http://localhost:3000`, click "Load demo project" in the upload panel, then paste the test draft and click "Check continuity." Three flags should appear, each with a suggested fix and a confidence percentage. Click a character name in any flag to view their Story Graph.
+Open the workspace at `http://localhost:3000`, click "Load demo project" in the upload panel, then paste the test draft and click "Check continuity." Three flags should appear each with a suggested fix and a confidence percentage. Click a character name in any flag to view their Story Graph.
 
 ---
 
