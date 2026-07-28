@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, Suspense } from 'react'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { getCanon, exportCanonDownload } from '@/lib/api'
@@ -8,7 +8,7 @@ import type { RetrievedFacts } from '@/lib/types'
 import { StoryGraph } from '@/components/StoryGraph'
 import styles from './canon.module.css'
 
-export default function CanonPage() {
+function CanonContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -476,5 +476,13 @@ export default function CanonPage() {
         </>
       )}
     </div>
+  )
+}
+
+export default function CanonPage() {
+  return (
+    <Suspense fallback={<div className={styles.loading}>Loading canon…</div>}>
+      <CanonContent />
+    </Suspense>
   )
 }
