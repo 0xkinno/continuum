@@ -117,81 +117,51 @@ function CanonContent() {
             built automatically from your uploaded documents and visual artifacts.
           </p>
 
-          {/* Sub-nav & Export controls */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 relative">
+          {/* Sub-nav & Export controls — Text-based editorial sub-nav */}
+          <div className={styles.subNavRow}>
             <button
               onClick={() => handleTabChange('overview')}
-              className={`px-5 py-2 rounded-full font-mono text-xs uppercase tracking-widest transition-all ${
-                activeTab === 'overview'
-                  ? 'bg-amber-900 text-amber-50 shadow-md ring-1 ring-amber-700/50'
-                  : 'bg-amber-950/20 text-amber-200/70 hover:bg-amber-900/30 hover:text-amber-100'
-              }`}
+              className={activeTab === 'overview' ? styles.subNavItemActive : styles.subNavItem}
             >
               Overview
             </button>
 
             <button
               onClick={() => handleTabChange('graph')}
-              className={`px-5 py-2 rounded-full font-mono text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${
-                activeTab === 'graph'
-                  ? 'bg-amber-900 text-amber-50 shadow-md ring-1 ring-amber-700/50'
-                  : 'bg-amber-950/20 text-amber-200/70 hover:bg-amber-900/30 hover:text-amber-100'
-              }`}
+              className={activeTab === 'graph' ? styles.subNavItemActive : styles.subNavItem}
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18" />
-              </svg>
               Story Graph
             </button>
 
-            {/* Export Button & Format Dropdown */}
-            <div className="relative">
+            {/* Export Story Dropdown */}
+            <div className={styles.exportContainer}>
               <button
                 onClick={() => hasSources && setShowExportMenu(!showExportMenu)}
                 disabled={!hasSources || exporting}
                 title={!hasSources ? 'Ingest sources first' : 'Export Story Bible'}
-                className={`px-4 py-2 rounded-full font-mono text-xs uppercase tracking-widest transition-all flex items-center gap-2 border ${
-                  !hasSources
-                    ? 'opacity-40 cursor-not-allowed bg-amber-950/10 text-amber-200/40 border-amber-900/20'
-                    : 'bg-amber-950/30 text-amber-100 border-amber-700/40 hover:bg-amber-900/50'
-                }`}
+                className={`${styles.exportBtn} ${!hasSources ? styles.exportBtnDisabled : ''}`}
               >
-                <svg className="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
                 <span>{exporting ? 'Exporting…' : 'Export Story'}</span>
-                <span className="text-[10px] opacity-60">▾</span>
+                <span>▾</span>
               </button>
 
               {showExportMenu && hasSources && (
-                <div className="absolute right-0 mt-2 w-44 rounded-lg bg-[#1a1714] border border-amber-900/40 shadow-xl py-1 z-50">
-                  <button
-                    onClick={() => triggerExport('md')}
-                    className="w-full px-4 py-2 text-left font-mono text-xs text-amber-100 hover:bg-amber-900/30 flex items-center justify-between"
-                  >
+                <div className={styles.exportDropdown}>
+                  <button onClick={() => triggerExport('md')} className={styles.dropdownItem}>
                     <span>Markdown</span>
-                    <span className="text-[10px] opacity-60">.md</span>
+                    <span style={{ opacity: 0.6 }}>.md</span>
                   </button>
-                  <button
-                    onClick={() => triggerExport('pdf')}
-                    className="w-full px-4 py-2 text-left font-mono text-xs text-amber-100 hover:bg-amber-900/30 flex items-center justify-between"
-                  >
+                  <button onClick={() => triggerExport('pdf')} className={styles.dropdownItem}>
                     <span>PDF Document</span>
-                    <span className="text-[10px] opacity-60">.pdf</span>
+                    <span style={{ opacity: 0.6 }}>.pdf</span>
                   </button>
-                  <button
-                    onClick={() => triggerExport('txt')}
-                    className="w-full px-4 py-2 text-left font-mono text-xs text-amber-100 hover:bg-amber-900/30 flex items-center justify-between"
-                  >
+                  <button onClick={() => triggerExport('txt')} className={styles.dropdownItem}>
                     <span>Plain Text</span>
-                    <span className="text-[10px] opacity-60">.txt</span>
+                    <span style={{ opacity: 0.6 }}>.txt</span>
                   </button>
-                  <button
-                    onClick={() => triggerExport('json')}
-                    className="w-full px-4 py-2 text-left font-mono text-xs text-amber-100 hover:bg-amber-900/30 flex items-center justify-between"
-                  >
+                  <button onClick={() => triggerExport('json')} className={styles.dropdownItem}>
                     <span>JSON Data</span>
-                    <span className="text-[10px] opacity-60">.json</span>
+                    <span style={{ opacity: 0.6 }}>.json</span>
                   </button>
                 </div>
               )}
@@ -226,31 +196,10 @@ function CanonContent() {
       {!loading && !error && (
         <>
           {activeTab === 'graph' ? (
-            <div className="max-w-7xl mx-auto px-4 py-8">
-              {/* Character switcher pills */}
-              {facts && facts.characters.length > 0 && (
-                <div className="mb-8 flex flex-wrap items-center gap-2 border-b border-amber-950/10 pb-4">
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-soft)] mr-2">
-                    Select Character:
-                  </span>
-                  {facts.characters.map((c) => (
-                    <button
-                      key={c.name}
-                      onClick={() => handleSelectCharacterForGraph(c.name)}
-                      className={`px-3 py-1 rounded font-serif text-xs transition-all ${
-                        selectedCharacter === c.name
-                          ? 'bg-amber-900 text-amber-50 font-semibold shadow-sm'
-                          : 'bg-[var(--color-paper-dim)] text-[var(--color-ink)] hover:bg-amber-900/10'
-                      }`}
-                    >
-                      {c.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-
+            <div style={{ maxWidth: 'var(--max-width-layout)', margin: '0 auto', paddingTop: 'var(--space-6)' }}>
               <StoryGraph
                 characterName={selectedCharacter}
+                allCharacters={facts?.characters || []}
                 onSelectCharacter={handleSelectCharacterForGraph}
               />
             </div>

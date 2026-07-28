@@ -4,13 +4,20 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { getStoryGraph } from '@/lib/api'
 import type { StoryGraphData } from '@/lib/types'
+import styles from './StoryGraph.module.css'
+
+interface CharacterItem {
+  name: string
+  aliases?: string[]
+}
 
 interface StoryGraphProps {
   characterName: string
+  allCharacters?: CharacterItem[]
   onSelectCharacter: (name: string) => void
 }
 
-export function StoryGraph({ characterName, onSelectCharacter }: StoryGraphProps) {
+export function StoryGraph({ characterName, allCharacters = [], onSelectCharacter }: StoryGraphProps) {
   const [data, setData] = useState<StoryGraphData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -42,225 +49,198 @@ export function StoryGraph({ characterName, onSelectCharacter }: StoryGraphProps
     }
   }, [characterName])
 
-  if (loading) {
-    return (
-      <div className="py-16 text-center space-y-3">
-        <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent text-amber-900/60" />
-        <p className="font-mono text-xs uppercase tracking-widest text-[var(--color-ink-soft)]">
-          Compiling Story Graph for {characterName}…
-        </p>
-      </div>
-    )
-  }
-
-  if (error || !data) {
-    return (
-      <div className="py-12 px-6 rounded-lg border border-amber-950/10 bg-[var(--color-paper-dim)] text-center space-y-4">
-        <p className="font-serif italic text-lg text-amber-900/80">
-          {error || 'No story graph available for this character.'}
-        </p>
-        <p className="font-mono text-xs text-[var(--color-ink-soft)]">
-          Select another character card from Canon Overview to inspect their visual narrative graph.
-        </p>
-      </div>
-    )
-  }
-
-  const { character, appearsIn, relationships, possessions, knowledgeTimeline, eventTimeline } = data
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="space-y-8"
-    >
-      {/* Header */}
-      <div className="border-b border-amber-950/10 pb-6">
-        <div className="flex flex-wrap items-baseline justify-between gap-4">
-          <div>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-soft)] block mb-1">
-              Visual Story Graph & Narrative Connections
-            </span>
-            <h2 className="font-serif text-3xl md:text-4xl text-[var(--color-ink)]">
-              {character.name}
-            </h2>
-          </div>
-          {character.aliases && character.aliases.length > 0 && (
-            <div className="font-mono text-xs text-[var(--color-ink-soft)]">
-              Known as: <span className="text-amber-900">{character.aliases.join(', ')}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Traits & Attributes tags */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          {Object.entries(character.attributes).map(([k, v]) => (
-            <span
-              key={k}
-              className="inline-flex items-center px-2.5 py-1 rounded bg-amber-900/5 border border-amber-900/10 font-mono text-[11px] text-amber-900"
-            >
-              <span className="opacity-60 mr-1.5 uppercase">{k}:</span> {v}
-            </span>
-          ))}
-          {character.traits.map((t, idx) => (
-            <span
-              key={idx}
-              className="inline-flex items-center px-2.5 py-1 rounded bg-[var(--color-paper-dim)] border border-amber-950/10 font-serif italic text-xs text-[var(--color-ink-soft)]"
-            >
-              {t.trait}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* 4-Column Clean Editorial Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        {/* Column 1: APPEARS IN */}
-        <div className="bg-[var(--color-paper-dim)] rounded-lg p-5 border border-amber-950/10 space-y-4">
-          <div className="flex items-center justify-between border-b border-amber-950/10 pb-2">
-            <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--color-ink-soft)]">
-              Appears In
-            </h3>
-            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-amber-900/10 text-amber-900">
-              {appearsIn.length}
-            </span>
-          </div>
-          {appearsIn.length === 0 ? (
-            <p className="font-mono text-xs text-[var(--color-ink-soft)] italic">No explicit chapters logged</p>
-          ) : (
-            <ul className="space-y-2">
-              {appearsIn.map((chapter, idx) => (
-                <li
-                  key={idx}
-                  className="font-mono text-xs text-[var(--color-ink)] flex items-center gap-2 py-1 border-b border-amber-950/5 last:border-0"
+    <div className={styles.container}>
+      {/* ── Character Selector Pills ────────────────────────────────────────── */}
+      {allCharacters && allCharacters.length > 0 && (
+        <motion.div
+          className={styles.selectorSection}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <span className={styles.selectorLabel}>CHARACTER</span>
+          <div className={styles.pillRow}>
+            {allCharacters.map((char) => {
+              const isSelected = char.name === characterName
+              return (
+                <button
+                  key={char.name}
+                  onClick={() => onSelectCharacter(char.name)}
+                  className={isSelected ? styles.pillActive : styles.pill}
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-700/60" />
-                  {chapter}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Column 2: RELATIONSHIPS */}
-        <div className="bg-[var(--color-paper-dim)] rounded-lg p-5 border border-amber-950/10 space-y-4">
-          <div className="flex items-center justify-between border-b border-amber-950/10 pb-2">
-            <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--color-ink-soft)]">
-              Relationships
-            </h3>
-            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-amber-900/10 text-amber-900">
-              {relationships.length}
-            </span>
+                  {char.name}
+                </button>
+              )
+            })}
           </div>
-          {relationships.length === 0 ? (
-            <p className="font-mono text-xs text-[var(--color-ink-soft)] italic">No direct relationships logged</p>
-          ) : (
-            <div className="space-y-3">
-              {relationships.map((rel, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 rounded border border-amber-950/10 bg-[var(--color-paper)] hover:border-amber-700/30 transition-colors"
-                >
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-900/10 text-amber-900">
-                      {rel.type}
-                    </span>
-                    <button
-                      onClick={() => onSelectCharacter(rel.withCharacter)}
-                      className="font-serif text-sm font-semibold text-amber-900 hover:underline flex items-center gap-1 group text-left"
-                    >
-                      {rel.withCharacter}
-                      <span className="font-mono text-xs transition-transform group-hover:translate-x-0.5">→</span>
-                    </button>
-                  </div>
-                  <p className="font-serif italic text-xs text-[var(--color-ink-soft)]">
-                    {rel.nature}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        </motion.div>
+      )}
 
-        {/* Column 3: POSSESSIONS */}
-        <div className="bg-[var(--color-paper-dim)] rounded-lg p-5 border border-amber-950/10 space-y-4">
-          <div className="flex items-center justify-between border-b border-amber-950/10 pb-2">
-            <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--color-ink-soft)]">
-              Possessions
-            </h3>
-            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-amber-900/10 text-amber-900">
-              {possessions.length}
-            </span>
-          </div>
-          {possessions.length === 0 ? (
-            <p className="font-mono text-xs text-[var(--color-ink-soft)] italic">No items logged</p>
-          ) : (
-            <ul className="space-y-2">
-              {possessions.map((item, idx) => (
-                <li
-                  key={idx}
-                  className="p-2.5 rounded bg-[var(--color-paper)] border border-amber-950/5 font-serif text-xs text-[var(--color-ink)] leading-relaxed"
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Column 4: TIMELINE */}
-        <div className="bg-[var(--color-paper-dim)] rounded-lg p-5 border border-amber-950/10 space-y-4">
-          <div className="flex items-center justify-between border-b border-amber-950/10 pb-2">
-            <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--color-ink-soft)]">
-              Timeline
-            </h3>
-            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-amber-900/10 text-amber-900">
-              {eventTimeline.length}
-            </span>
-          </div>
-          {eventTimeline.length === 0 ? (
-            <p className="font-mono text-xs text-[var(--color-ink-soft)] italic">No events logged</p>
-          ) : (
-            <div className="relative pl-3 space-y-4 border-l border-amber-900/20">
-              {eventTimeline.map((ev, idx) => (
-                <div key={idx} className="relative group">
-                  <span className="absolute -left-[17px] top-1 h-2 w-2 rounded-full bg-amber-800 ring-4 ring-[var(--color-paper-dim)]" />
-                  <span className="font-mono text-[10px] text-amber-900 block uppercase tracking-wider mb-0.5">
-                    {ev.position}
-                  </span>
-                  <p className="font-serif text-xs text-[var(--color-ink)] leading-snug">
-                    {ev.summary}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-      </div>
-
-      {/* Knowledge Timeline Section */}
-      {knowledgeTimeline.length > 0 && (
-        <div className="bg-[var(--color-paper-dim)] rounded-lg p-6 border border-amber-950/10">
-          <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--color-ink-soft)] mb-4 border-b border-amber-950/10 pb-2">
-            Established Knowledge Milestones
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {knowledgeTimeline.map((k, idx) => (
-              <div key={idx} className="p-3 rounded bg-[var(--color-paper)] border border-amber-950/10">
-                <span className="font-mono text-[10px] text-amber-900 uppercase tracking-wider block mb-1">
-                  After {k.establishedAfter}
-                </span>
-                <p className="font-serif text-xs text-[var(--color-ink)]">
-                  {k.item}
-                </p>
-              </div>
-            ))}
-          </div>
+      {loading && (
+        <div className={styles.loadingSpinner}>
+          Compiling Story Graph for {characterName}…
         </div>
       )}
-    </motion.div>
+
+      {error && (
+        <div className={styles.emptyText} style={{ textAlign: 'center', padding: '32px 0' }}>
+          {error}
+        </div>
+      )}
+
+      {!loading && !error && data && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}
+        >
+          {/* ── Character Profile Card ────────────────────────────────────────── */}
+          <div className={styles.profileCard}>
+            <div className={styles.profileHeader}>
+              <h2 className={styles.characterTitle}>{data.character.name}</h2>
+              {data.character.aliases && data.character.aliases.length > 0 && (
+                <p className={styles.characterSubtitle}>
+                  Known as: {data.character.aliases.join(', ')}
+                </p>
+              )}
+            </div>
+
+            <div className={styles.divider} />
+
+            {/* Structured Attributes Grid */}
+            <div className={styles.attributeGrid}>
+              {Object.entries(data.character.attributes).map(([key, val]) => (
+                <div key={key} className={styles.attributeCell}>
+                  <span className={styles.attributeLabel}>{key}</span>
+                  <span className={styles.attributeValue}>{val}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Traits */}
+            {data.character.traits && data.character.traits.length > 0 && (
+              <div className={styles.traitsRow}>
+                {data.character.traits.map((t, idx) => (
+                  <span key={idx} className={styles.traitBadge}>
+                    {t.trait}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className={styles.divider} />
+
+          {/* ── 4-Column Story Graph Grid ─────────────────────────────────────── */}
+          <div className={styles.graphGrid}>
+            
+            {/* Column 1: APPEARS IN */}
+            <div className={styles.column}>
+              <div className={styles.columnHeader}>
+                <h3 className={styles.columnTitle}>APPEARS IN</h3>
+                <span className={styles.itemCount}>{data.appearsIn.length}</span>
+              </div>
+
+              {data.appearsIn.length === 0 ? (
+                <p className={styles.emptyText}>No explicit chapters logged</p>
+              ) : (
+                <ul className={styles.itemList}>
+                  {data.appearsIn.map((ch, idx) => (
+                    <li key={idx} className={styles.listItem}>
+                      <span className={styles.dashMarker}>—</span>
+                      <span>{ch}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Column 2: RELATIONSHIPS */}
+            <div className={styles.column}>
+              <div className={styles.columnHeader}>
+                <h3 className={styles.columnTitle}>RELATIONSHIPS</h3>
+                <span className={styles.itemCount}>{data.relationships.length}</span>
+              </div>
+
+              {data.relationships.length === 0 ? (
+                <p className={styles.emptyText}>No direct relationships recorded</p>
+              ) : (
+                <div>
+                  {/* Group relationships by type */}
+                  {Array.from(new Set(data.relationships.map((r) => r.type))).map((type) => {
+                    const relsOfType = data.relationships.filter((r) => r.type === type)
+                    return (
+                      <div key={type} className={styles.relGroup}>
+                        <span className={styles.relTypeLabel}>{type}</span>
+                        {relsOfType.map((rel, idx) => (
+                          <div key={idx}>
+                            <button
+                              onClick={() => onSelectCharacter(rel.withCharacter)}
+                              className={styles.relLink}
+                            >
+                              <span>{rel.withCharacter}</span>
+                              <span className={styles.arrowIcon}>→</span>
+                            </button>
+                            {rel.nature && (
+                              <span className={styles.relNature}>({rel.nature})</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Column 3: POSSESSIONS */}
+            <div className={styles.column}>
+              <div className={styles.columnHeader}>
+                <h3 className={styles.columnTitle}>POSSESSIONS</h3>
+                <span className={styles.itemCount}>{data.possessions.length}</span>
+              </div>
+
+              {data.possessions.length === 0 ? (
+                <p className={styles.emptyText}>No possessions recorded</p>
+              ) : (
+                <ul className={styles.itemList}>
+                  {data.possessions.map((item, idx) => (
+                    <li key={idx} className={styles.listItem}>
+                      <span className={styles.dashMarker}>—</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Column 4: TIMELINE */}
+            <div className={styles.column}>
+              <div className={styles.columnHeader}>
+                <h3 className={styles.columnTitle}>TIMELINE</h3>
+                <span className={styles.itemCount}>{data.eventTimeline.length}</span>
+              </div>
+
+              {data.eventTimeline.length === 0 ? (
+                <p className={styles.emptyText}>No timeline events recorded</p>
+              ) : (
+                <div className={styles.timelineContainer}>
+                  {data.eventTimeline.map((ev, idx) => (
+                    <div key={idx} className={styles.timelineItem}>
+                      <span className={styles.timelineDot} />
+                      <p className={styles.timelineText}>{ev.summary}</p>
+                      <span className={styles.timelineSource}>{ev.position}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </div>
+        </motion.div>
+      )}
+    </div>
   )
 }
