@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { getCanon } from '@/lib/api'
+import { getCanon, exportCanonDownload } from '@/lib/api'
 import type { RetrievedFacts } from '@/lib/types'
 import { StoryGraph } from '@/components/StoryGraph'
 import styles from './canon.module.css'
@@ -21,6 +21,11 @@ export default function CanonPage() {
   const [facts, setFacts]   = useState<RetrievedFacts | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError]   = useState<string | null>(null)
+
+  const [exporting, setExporting] = useState(false)
+  const [showExportMenu, setShowExportMenu] = useState(false)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 60])
@@ -67,6 +72,33 @@ export default function CanonPage() {
     }
   }
 
+  const hasSources = facts && (facts.characters.length > 0 || facts.events.length > 0 || facts.rules.length > 0)
+
+  const triggerExport = async (format: 'md' | 'pdf' | 'txt' | 'json') => {
+    if (!hasSources) return
+    setExporting(true)
+    setShowExportMenu(false)
+    try {
+      const { blob, filename } = await exportCanonDownload(format)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+
+      setToastMessage(`Story bible exported as .${format}`)
+      setTimeout(() => setToastMessage(null), 3500)
+    } catch (err) {
+      setToastMessage('Export failed. Please try again.')
+      setTimeout(() => setToastMessage(null), 3500)
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.hero} ref={heroRef}>
@@ -85,8 +117,8 @@ export default function CanonPage() {
             built automatically from your uploaded documents and visual artifacts.
           </p>
 
-          {/* Sub-nav toggle: Overview | Graph */}
-          <div className="mt-8 flex items-center justify-center gap-3">
+          {/* Sub-nav & Export controls */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 relative">
             <button
               onClick={() => handleTabChange('overview')}
               className={`px-5 py-2 rounded-full font-mono text-xs uppercase tracking-widest transition-all ${
@@ -97,6 +129,7 @@ export default function CanonPage() {
             >
               Overview
             </button>
+
             <button
               onClick={() => handleTabChange('graph')}
               className={`px-5 py-2 rounded-full font-mono text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${
@@ -110,9 +143,76 @@ export default function CanonPage() {
               </svg>
               Story Graph
             </button>
+
+            {/* Export Button & Format Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => hasSources && setShowExportMenu(!showExportMenu)}
+                disabled={!hasSources || exporting}
+                title={!hasSources ? 'Ingest sources first' : 'Export Story Bible'}
+                className={`px-4 py-2 rounded-full font-mono text-xs uppercase tracking-widest transition-all flex items-center gap-2 border ${
+                  !hasSources
+                    ? 'opacity-40 cursor-not-allowed bg-amber-950/10 text-amber-200/40 border-amber-900/20'
+                    : 'bg-amber-950/30 text-amber-100 border-amber-700/40 hover:bg-amber-900/50'
+                }`}
+              >
+                <svg className="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>{exporting ? 'Exporting…' : 'Export Story'}</span>
+                <span className="text-[10px] opacity-60">▾</span>
+              </button>
+
+              {showExportMenu && hasSources && (
+                <div className="absolute right-0 mt-2 w-44 rounded-lg bg-[#1a1714] border border-amber-900/40 shadow-xl py-1 z-50">
+                  <button
+                    onClick={() => triggerExport('md')}
+                    className="w-full px-4 py-2 text-left font-mono text-xs text-amber-100 hover:bg-amber-900/30 flex items-center justify-between"
+                  >
+                    <span>Markdown</span>
+                    <span className="text-[10px] opacity-60">.md</span>
+                  </button>
+                  <button
+                    onClick={() => triggerExport('pdf')}
+                    className="w-full px-4 py-2 text-left font-mono text-xs text-amber-100 hover:bg-amber-900/30 flex items-center justify-between"
+                  >
+                    <span>PDF Document</span>
+                    <span className="text-[10px] opacity-60">.pdf</span>
+                  </button>
+                  <button
+                    onClick={() => triggerExport('txt')}
+                    className="w-full px-4 py-2 text-left font-mono text-xs text-amber-100 hover:bg-amber-900/30 flex items-center justify-between"
+                  >
+                    <span>Plain Text</span>
+                    <span className="text-[10px] opacity-60">.txt</span>
+                  </button>
+                  <button
+                    onClick={() => triggerExport('json')}
+                    className="w-full px-4 py-2 text-left font-mono text-xs text-amber-100 hover:bg-amber-900/30 flex items-center justify-between"
+                  >
+                    <span>JSON Data</span>
+                    <span className="text-[10px] opacity-60">.json</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
       </div>
+
+      {/* Notification Toast */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-lg bg-amber-900 text-amber-50 font-mono text-xs shadow-lg border border-amber-700/50 flex items-center gap-2"
+          >
+            <span>✓</span> {toastMessage}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {loading && <p className={styles.loading}>Loading canon…</p>}
 

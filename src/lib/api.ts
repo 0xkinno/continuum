@@ -68,6 +68,18 @@ export async function getStoryGraph(characterName: string): Promise<import('./ty
   return safeJson<import('./types').StoryGraphResponse>(res, 'Failed to fetch story graph.')
 }
 
+export async function exportCanonDownload(format: 'md' | 'pdf' | 'txt' | 'json' = 'md'): Promise<{ blob: Blob; filename: string }> {
+  const res = await fetch(`${BASE}/knowledge/export?format=${format}`)
+  if (!res.ok) {
+    throw new Error(`Export failed (${res.status})`)
+  }
+  const blob = await res.blob()
+  const contentDisp = res.headers.get('Content-Disposition') || ''
+  const match = contentDisp.match(/filename="([^"]+)"/)
+  const filename = match ? match[1] : `story-bible.${format}`
+  return { blob, filename }
+}
+
 // ── Continuity check ──────────────────────────────────────────────────────────
 
 export async function checkDraft(draftText: string): Promise<CheckResponse> {

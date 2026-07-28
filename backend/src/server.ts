@@ -4,7 +4,7 @@
  *
  * Phase 1:  /health       — health-check
  * Phase 2:  /ingest       — file upload & image upload → Groq / Docling → Granite fact-extraction
- * Phase 3:  /knowledge    — SQLite fact store & Story Graph (upsert + retrieval)
+ * Phase 3:  /knowledge    — SQLite fact store, Story Graph & Canon Export (upsert + retrieval + export)
  * Phase 4:  /continuity   — draft contradiction-checking
  * Phase 5:  /history      — check history log
  * Phase 7:  /seed         — demo seeding endpoint
@@ -22,6 +22,7 @@ import { ingestRoutes } from './routes/ingest.js';
 import { ingestImageRoutes } from './routes/ingestImage.js';
 import { knowledgeRoutes } from './routes/knowledge.js';
 import { knowledgeGraphRoutes } from './routes/knowledgeGraph.js';
+import { exportCanonRoutes } from './routes/exportCanon.js';
 import { continuityRoutes } from './routes/continuity.js';
 import { historyRoutes } from './routes/history.js';
 import { seedRoutes } from './routes/seed.js';
@@ -81,6 +82,7 @@ async function buildApp() {
   await app.register(ingestImageRoutes,    { prefix: '/ingest' });
   await app.register(knowledgeRoutes,      { prefix: '/knowledge' });
   await app.register(knowledgeGraphRoutes, { prefix: '/knowledge' });
+  await app.register(exportCanonRoutes,    { prefix: '/knowledge' });
   await app.register(continuityRoutes,     { prefix: '/continuity' });
   await app.register(historyRoutes,        { prefix: '/history' });
   await app.register(seedRoutes,           { prefix: '/seed' });
