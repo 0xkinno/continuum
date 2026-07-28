@@ -102,13 +102,15 @@ function CanonContent() {
   return (
     <div className={styles.page}>
       <div className={styles.hero} ref={heroRef}>
-        <motion.img
-          src="/images/canon-preview.jpg"
-          alt=""
-          className={`${styles.heroImage} editorialImage`}
-          style={{ y: heroY }}
-        />
-        <div className={styles.heroOverlay} />
+        <div className={styles.heroImageContainer}>
+          <motion.img
+            src="/images/canon-preview.jpg"
+            alt=""
+            className={`${styles.heroImage} editorialImage`}
+            style={{ y: heroY }}
+          />
+          <div className={styles.heroOverlay} />
+        </div>
         <header className={styles.pageHeader}>
           <p className={styles.pageEyebrow}>Story Bible</p>
           <h1 className={styles.pageTitle}>Canon</h1>

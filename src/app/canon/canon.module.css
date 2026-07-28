@@ -13,10 +13,17 @@
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   margin-bottom: var(--space-12);
-  overflow: hidden;
   display: flex;
   align-items: flex-end;
   border-bottom: var(--border-hairline);
+  z-index: 10;
+}
+
+.heroImageContainer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .heroImage {
@@ -37,7 +44,7 @@
 
 .pageHeader {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   padding: var(--space-10) var(--space-10) var(--space-8);
   width: 100%;
   max-width: var(--max-width-layout);
@@ -130,6 +137,7 @@
 .exportContainer {
   margin-left: auto;
   position: relative;
+  z-index: 100;
 }
 
 .exportBtn {
@@ -169,7 +177,7 @@
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-lift);
   padding: 4px 0;
-  z-index: 100;
+  z-index: 200;
 }
 
 .dropdownItem {
