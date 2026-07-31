@@ -1,7 +1,5 @@
 # Continuum
 
-![Continuum](docs/screenshots/landing.png)
-
 ### The AI Canon Intelligence platform for long-form storytelling
 
 ![Theme](https://img.shields.io/badge/Theme-Creative_Industries-D4A843?style=flat-square&labelColor=17161A)
@@ -9,6 +7,8 @@
 ![Stack](https://img.shields.io/badge/Stack-Next.js_14_._Fastify_._SQLite-4E5F78?style=flat-square&labelColor=17161A)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square&labelColor=17161A)
 [![CI](https://github.com/0xkinno/continuum/actions/workflows/ci.yml/badge.svg)](https://github.com/0xkinno/continuum/actions/workflows/ci.yml)
+
+![Continuum](docs/screenshots/landing.png)
 
 > **Continuum is an AI Canon Intelligence platform for long-form storytelling.**
 > Instead of treating manuscripts as isolated files, Continuum builds a living canonical knowledge model from every creative artifact -- chapters, notes, images, character sheets, and worldbuilding documents -- then reasons against that canon to detect contradictions, explain them with evidence, propose concrete fixes, and preserve narrative consistency throughout the lifetime of a story.
