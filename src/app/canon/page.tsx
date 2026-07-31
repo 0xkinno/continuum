@@ -293,6 +293,7 @@ function CanonContent() {
                                         src={sourceImageMap[t.sourceLabel]}
                                         alt={t.sourceLabel}
                                         className="w-5 h-5 rounded object-cover inline-block align-middle ml-1.5 border border-amber-900/20"
+                                        style={{ width: '20px', height: '20px', objectFit: 'cover', borderRadius: '4px', display: 'inline-block', verticalAlign: 'middle' }}
                                       />
                                     ) : (
                                       <svg className="w-3.5 h-3.5 inline ml-1.5 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -374,6 +375,7 @@ function CanonContent() {
                                   src={sourceImageMap[ev.sourceLabel]}
                                   alt={ev.sourceLabel}
                                   className="w-5 h-5 rounded object-cover inline-block align-middle ml-1.5 border border-amber-900/20"
+                                  style={{ width: '20px', height: '20px', objectFit: 'cover', borderRadius: '4px', display: 'inline-block', verticalAlign: 'middle' }}
                                 />
                               ) : (
                                 <svg className="w-3.5 h-3.5 inline ml-1.5 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -445,6 +447,7 @@ function CanonContent() {
                                   src={sourceImageMap[rule.sourceLabel]}
                                   alt={rule.sourceLabel}
                                   className="w-5 h-5 rounded object-cover inline-block align-middle ml-1.5 border border-amber-900/20"
+                                  style={{ width: '20px', height: '20px', objectFit: 'cover', borderRadius: '4px', display: 'inline-block', verticalAlign: 'middle' }}
                                 />
                               ) : (
                                 <svg className="w-3.5 h-3.5 inline ml-1.5 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">

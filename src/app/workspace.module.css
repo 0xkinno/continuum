@@ -204,14 +204,34 @@
   padding: var(--space-3) var(--space-4);
   cursor: default;
   transition: background var(--transition-fast);
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
   border-radius: var(--radius-btn);
   background: rgba(255, 255, 255, 0.5);
   border: var(--border-hairline);
+  overflow: hidden;
 }
 
 .sourceItem:hover {
   background: rgba(255, 255, 255, 0.9);
+}
+
+.sourceThumbnailWrapper {
+  width: 100%;
+  height: 120px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: var(--space-2);
+  background: rgba(26, 25, 24, 0.04);
+  border: 1px solid var(--color-rule);
+}
+
+.sourceThumbnail {
+  width: 100%;
+  height: 120px;
+  max-height: 120px;
+  object-fit: cover;
+  display: block;
+  border-radius: 5px;
 }
 
 .sourceName {
@@ -293,7 +313,7 @@
   resize: none;
   border: none;
   outline: none;
-  font-family: var(--font-sans); /* Notion AI / Craft Docs style clean sans */
+  font-family: var(--font-sans);
   font-size: var(--text-lg);
   line-height: 1.8;
   color: var(--color-ink);
@@ -517,4 +537,3 @@
   color: var(--color-ink-soft);
   letter-spacing: 0.02em;
 }
-

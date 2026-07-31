@@ -328,14 +328,17 @@ export default function ManuscriptPage() {
                 return (
                   <div key={src.id} className={styles.sourceItem}>
                     {isImage && imageUrl ? (
-                      <img
-                        src={imageUrl}
-                        alt={src.label}
-                        className="w-full h-[120px] object-cover rounded-[6px] mb-2"
-                      />
+                      <div className={styles.sourceThumbnailWrapper}>
+                        <img
+                          src={imageUrl}
+                          alt={src.label}
+                          className={styles.sourceThumbnail}
+                          style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block', borderRadius: '5px' }}
+                        />
+                      </div>
                     ) : isImage ? (
-                      <div className="w-full h-[120px] bg-amber-950/5 border border-amber-950/10 rounded-[6px] mb-2 flex items-center justify-center text-amber-900/40">
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className={styles.sourceThumbnailWrapper} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg className="w-8 h-8 text-amber-900/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                           <circle cx="12" cy="13" r="3" strokeWidth="1.5" />
                         </svg>
