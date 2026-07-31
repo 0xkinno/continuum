@@ -9,7 +9,7 @@
  *   1. Extract image file buffer
  *   2. Call Groq Vision API (describeImage) to convert visual content into rich text description
  *   3. Pass description text to Ingestion Agent (extractFacts) — Granite extracts facts
- *   4. Persist resulting FactModel into Knowledge Store (tagged with sourceType: "image")
+ *   4. Persist resulting FactModel into Knowledge Store (tagged with sourceType: "image" and imageUrl)
  *   5. Return FactModel JSON
  */
 
@@ -53,13 +53,18 @@ export async function ingestImageRoutes(app: FastifyInstance) {
       request.log.info({ sourceLabel: originalName }, 'Extracting facts from image description via Granite');
       const factModel = await extractFacts(description, originalName, 'image');
 
+      // Create base64 Data URL for real thumbnail rendering
+      const imageUrl = `data:${mimeType};base64,${buffer.toString('base64')}`;
+      factModel.imageUrl = imageUrl;
+
       const sourceId = upsertFactModel(factModel);
-      request.log.info({ sourceId }, 'Image FactModel persisted to Knowledge store');
+      request.log.info({ sourceId }, 'Image FactModel persisted to Knowledge store with thumbnail');
 
       return reply.status(200).send({
         success: true,
         sourceLabel: originalName,
         sourceType: 'image',
+        imageUrl,
         sourceId,
         factModel,
       });

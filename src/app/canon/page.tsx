@@ -19,6 +19,7 @@ function CanonContent() {
   const [selectedCharacter, setSelectedCharacter] = useState<string>(charParam || 'Maren Ashcroft')
 
   const [facts, setFacts]   = useState<RetrievedFacts | null>(null)
+  const [sourceImageMap, setSourceImageMap] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError]   = useState<string | null>(null)
 
@@ -29,6 +30,20 @@ function CanonContent() {
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 60])
+
+  useEffect(() => {
+    import('@/lib/api').then(({ getSources }) => {
+      getSources().then((res) => {
+        if (res.success && res.sources) {
+          const map: Record<string, string> = {}
+          for (const s of res.sources) {
+            if (s.imageUrl) map[s.label] = s.imageUrl
+          }
+          setSourceImageMap(map)
+        }
+      }).catch(() => {})
+    })
+  }, [])
 
   useEffect(() => {
     if (tabParam === 'graph') {
@@ -273,11 +288,19 @@ function CanonContent() {
                                 <p key={ti} className={styles.characterItem}>
                                   {t.trait}
                                   {t.sourceLabel && t.sourceLabel.toLowerCase().match(/\.(jpg|jpeg|png)$/) && (
-                                    <svg className="w-3.5 h-3.5 inline ml-1.5 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <title>Image Artifact</title>
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                      <circle cx="12" cy="13" r="3" strokeWidth="2" />
-                                    </svg>
+                                    sourceImageMap[t.sourceLabel] ? (
+                                      <img
+                                        src={sourceImageMap[t.sourceLabel]}
+                                        alt={t.sourceLabel}
+                                        className="w-5 h-5 rounded object-cover inline-block align-middle ml-1.5 border border-amber-900/20"
+                                      />
+                                    ) : (
+                                      <svg className="w-3.5 h-3.5 inline ml-1.5 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <title>Image Artifact</title>
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                        <circle cx="12" cy="13" r="3" strokeWidth="2" />
+                                      </svg>
+                                    )
                                   )}
                                 </p>
                               ))}
@@ -346,11 +369,19 @@ function CanonContent() {
                           <p className={styles.timelinePos}>
                             {ev.position || ev.sourceLabel}
                             {ev.sourceLabel && ev.sourceLabel.toLowerCase().match(/\.(jpg|jpeg|png)$/) && (
-                              <svg className="w-3.5 h-3.5 inline ml-1.5 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <title>Image Artifact</title>
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                <circle cx="12" cy="13" r="3" strokeWidth="2" />
-                              </svg>
+                              sourceImageMap[ev.sourceLabel] ? (
+                                <img
+                                  src={sourceImageMap[ev.sourceLabel]}
+                                  alt={ev.sourceLabel}
+                                  className="w-5 h-5 rounded object-cover inline-block align-middle ml-1.5 border border-amber-900/20"
+                                />
+                              ) : (
+                                <svg className="w-3.5 h-3.5 inline ml-1.5 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <title>Image Artifact</title>
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                  <circle cx="12" cy="13" r="3" strokeWidth="2" />
+                                </svg>
+                              )
                             )}
                           </p>
                           <p className={styles.timelineSummary}>{ev.summary}</p>
@@ -409,11 +440,19 @@ function CanonContent() {
                           <p className={styles.ruleSource}>
                             Established in {rule.sourceLoc || rule.sourceLabel}
                             {rule.sourceLabel && rule.sourceLabel.toLowerCase().match(/\.(jpg|jpeg|png)$/) && (
-                              <svg className="w-3.5 h-3.5 inline ml-1.5 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <title>Image Artifact</title>
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                <circle cx="12" cy="13" r="3" strokeWidth="2" />
-                              </svg>
+                              sourceImageMap[rule.sourceLabel] ? (
+                                <img
+                                  src={sourceImageMap[rule.sourceLabel]}
+                                  alt={rule.sourceLabel}
+                                  className="w-5 h-5 rounded object-cover inline-block align-middle ml-1.5 border border-amber-900/20"
+                                />
+                              ) : (
+                                <svg className="w-3.5 h-3.5 inline ml-1.5 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <title>Image Artifact</title>
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                  <circle cx="12" cy="13" r="3" strokeWidth="2" />
+                                </svg>
+                              )
                             )}
                           </p>
                         </motion.div>

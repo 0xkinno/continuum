@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS sources (
   sha256       TEXT    NOT NULL UNIQUE,  -- SHA-256 of raw Markdown content
   label        TEXT    NOT NULL,         -- original filename / title
   source_type  TEXT    NOT NULL DEFAULT 'text', -- 'text' | 'image'
+  image_url    TEXT,                     -- Base64 data URL for image thumbnails
   coverage     TEXT    NOT NULL DEFAULT '',
   extracted_at TEXT    NOT NULL
 );
@@ -201,6 +202,11 @@ export function getDb(): DatabaseSync {
   _db.exec(SCHEMA_SQL);
   try {
     _db.exec(`ALTER TABLE sources ADD COLUMN source_type TEXT NOT NULL DEFAULT 'text';`);
+  } catch {
+    // Column already exists
+  }
+  try {
+    _db.exec(`ALTER TABLE sources ADD COLUMN image_url TEXT;`);
   } catch {
     // Column already exists
   }

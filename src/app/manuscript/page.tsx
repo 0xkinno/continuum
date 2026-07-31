@@ -324,15 +324,24 @@ export default function ManuscriptPage() {
               <p className={styles.sourceListHeading}>Ingested</p>
               {sources.map((src) => {
                 const isImage = (src as any).sourceType === 'image' || src.label.toLowerCase().match(/\.(jpg|jpeg|png)$/)
+                const imageUrl = (src as any).imageUrl
                 return (
                   <div key={src.id} className={styles.sourceItem}>
-                    <p className={`${styles.sourceName} flex items-center gap-1.5`}>
-                      {isImage && (
-                        <svg className="w-3.5 h-3.5 text-amber-800 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                          <circle cx="12" cy="13" r="3" strokeWidth="2" />
+                    {isImage && imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt={src.label}
+                        className="w-full h-[120px] object-cover rounded-[6px] mb-2"
+                      />
+                    ) : isImage ? (
+                      <div className="w-full h-[120px] bg-amber-950/5 border border-amber-950/10 rounded-[6px] mb-2 flex items-center justify-center text-amber-900/40">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                          <circle cx="12" cy="13" r="3" strokeWidth="1.5" />
                         </svg>
-                      )}
+                      </div>
+                    ) : null}
+                    <p className={`${styles.sourceName} flex items-center gap-1.5`}>
                       <span>{src.label}</span>
                     </p>
                     <div className={styles.sourceMeta}>

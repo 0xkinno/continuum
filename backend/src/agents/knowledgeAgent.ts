@@ -70,7 +70,7 @@ export interface RetrievedFacts {
 
 // ── Row types returned by node:sqlite ────────────────────────────────────────
 
-export interface SourceRow { id: number; label: string; coverage: string; sourceType: 'text' | 'image' }
+export interface SourceRow { id: number; label: string; coverage: string; sourceType: 'text' | 'image'; imageUrl?: string }
 interface CharRow       { id: number; name: string }
 interface AliasRow      { alias: string }
 interface TraitRow      { trait: string; evidence: string; label: string }
@@ -81,7 +81,6 @@ interface EventRow      { id: number; ext_id: string; summary: string; position:
 interface EvtCharRow    { character_name: string }
 interface EvtEstRow     { fact: string }
 interface RuleRow       { rule_text: string; evidence: string; source_loc: string; label: string }
-interface TimelineRow   { label: string }
 
 // ── 1. UPSERT ─────────────────────────────────────────────────────────────────
 
@@ -95,12 +94,23 @@ export function upsertFactModel(factModel: FactModel): number {
   // ── Source ────────────────────────────────────────────────────────────────
   // INSERT OR IGNORE: if sha256 already exists we skip and fetch the existing id
   db.prepare(`
-    INSERT OR IGNORE INTO sources (sha256, label, source_type, coverage, extracted_at)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(factModel.sourceHash, factModel.sourceLabel, factModel.sourceType ?? 'text', factModel.coverageRange, factModel.extractedAt);
+    INSERT OR IGNORE INTO sources (sha256, label, source_type, image_url, coverage, extracted_at)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(
+    factModel.sourceHash,
+    factModel.sourceLabel,
+    factModel.sourceType ?? 'text',
+    factModel.imageUrl ?? null,
+    factModel.coverageRange,
+    factModel.extractedAt
+  );
 
   const sourceRow = db.prepare(`SELECT id FROM sources WHERE sha256 = ?`).get(factModel.sourceHash) as { id: number };
   const sourceId = sourceRow.id;
+
+  if (factModel.imageUrl) {
+    db.prepare(`UPDATE sources SET image_url = ? WHERE sha256 = ?`).run(factModel.imageUrl, factModel.sourceHash);
+  }
 
   // ── Characters ────────────────────────────────────────────────────────────
   for (const char of factModel.characters) {
@@ -194,16 +204,6 @@ export function upsertFactModel(factModel: FactModel): number {
 
 /**
  * Retrieve structured facts relevant to a natural-language query.
- *
- * Resolution strategy:
- *  a) Extract character names from the query by matching against all stored
- *     character names and aliases.
- *  b) Extract a timeline position from the query by matching against stored
- *     timeline labels ("Chapter 2", "Day 3", etc.).
- *  c) If a timeline position is found, only return facts from sources whose
- *     timeline markers are at or before that position (narrative ordering).
- *  d) If no specific characters are named, return all characters.
- *  e) Always return all rules.
  */
 export function retrieveFacts(query: string): RetrievedFacts {
   const db = getDb();
@@ -248,8 +248,6 @@ export function retrieveFacts(query: string): RetrievedFacts {
   }
 
   if (positionLabel) {
-    // Include all sources up to and including the matched timeline label
-    // (ordered by source insertion order as a proxy for narrative order)
     const allSources = db.prepare(`SELECT id FROM sources ORDER BY id`).all() as unknown as { id: number }[];
     const matchSourceIds = new Set(
       (db.prepare(`SELECT source_id FROM timeline_markers WHERE label = ?`).all(positionLabel) as unknown as { source_id: number }[]).map((r) => r.source_id)
@@ -265,12 +263,6 @@ export function retrieveFacts(query: string): RetrievedFacts {
   const sourceFilter =
     scopedSourceIds
       ? `AND source_id IN (${scopedSourceIds.join(',')})`
-      : '';
-
-  // Character filter clause
-  const charFilter =
-    mentionedCharIds.size > 0
-      ? `AND character_id IN (${[...mentionedCharIds].join(',')})`
       : '';
 
   // ── Retrieve characters ───────────────────────────────────────────────────
@@ -323,13 +315,11 @@ export function retrieveFacts(query: string): RetrievedFacts {
     ORDER BY e.id
   `).all() as unknown as EventRow[];
 
-  // Filter to events that involve any of the queried characters (if specified)
   const events: RetrievedEvent[] = [];
   for (const ev of eventRows) {
     const evChars = (db.prepare(`SELECT character_name FROM event_characters WHERE event_id = ?`).all(ev.id) as unknown as EvtCharRow[]).map((r) => r.character_name);
     const evEstabs = (db.prepare(`SELECT fact FROM event_establishes WHERE event_id = ?`).all(ev.id) as unknown as EvtEstRow[]).map((r) => r.fact);
 
-    // Include if no character filter, or if this event involves a queried char
     const isRelevant =
       mentionedCharIds.size === 0 ||
       evChars.some((name) => allChars.find((c) => mentionedCharIds.has(c.id) && c.name.toLowerCase() === name.toLowerCase()));
@@ -347,7 +337,7 @@ export function retrieveFacts(query: string): RetrievedFacts {
     }
   }
 
-  // ── Retrieve rules (always all, ignoring source/char filter) ─────────────
+  // ── Retrieve rules ────────────────────────────────────────────────────────
   const ruleRows = db.prepare(`
     SELECT r.rule_text, r.evidence, r.source_loc, s.label
     FROM rules r JOIN sources s ON r.source_id = s.id
@@ -366,15 +356,14 @@ export function retrieveFacts(query: string): RetrievedFacts {
 
 // ── 3. LIST SOURCES ───────────────────────────────────────────────────────────
 
-export interface SourceRow { id: number; label: string; coverage: string; sourceType: 'text' | 'image' }
-
 export function listSources(): SourceRow[] {
   const db = getDb();
-  const rows = db.prepare(`SELECT id, label, source_type, coverage FROM sources ORDER BY id`).all() as any[];
+  const rows = db.prepare(`SELECT id, label, source_type, image_url, coverage FROM sources ORDER BY id`).all() as any[];
   return rows.map((r) => ({
     id: r.id,
     label: r.label,
     coverage: r.coverage,
     sourceType: (r.source_type as 'text' | 'image') ?? 'text',
+    imageUrl: r.image_url ?? undefined,
   }));
 }

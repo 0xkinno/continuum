@@ -41,6 +41,7 @@ export interface FactModel {
   sourceHash: string
   sourceLabel: string
   sourceType?: 'text' | 'image'
+  imageUrl?: string
   coverageRange: string
   characters: Character[]
   events: StoryEvent[]
@@ -106,6 +107,7 @@ export interface IngestResponse {
   success: boolean
   sourceLabel?: string
   sourceType?: 'text' | 'image'
+  imageUrl?: string
   doclingPageCount?: number
   sourceId?: number
   factModel?: FactModel
@@ -120,9 +122,17 @@ export interface CheckResponse {
   error?: string
 }
 
+export interface SourceInfo {
+  id: number
+  label: string
+  coverage: string
+  sourceType?: 'text' | 'image'
+  imageUrl?: string
+}
+
 export interface SourcesResponse {
   success: boolean
-  sources?: { id: number; label: string; coverage: string; sourceType?: 'text' | 'image' }[]
+  sources?: SourceInfo[]
   error?: string
 }
 
@@ -201,4 +211,3 @@ export interface HistoryListResponse {
   total?: number
   error?: string
 }
-

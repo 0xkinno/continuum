@@ -77,6 +77,8 @@ export interface FactModel {
   sourceLabel: string;
   /** Media type of the source: "text" | "image" */
   sourceType?: 'text' | 'image';
+  /** Base64 image data URL for thumbnail rendering */
+  imageUrl?: string;
   /** Narrative position range this document covers */
   coverageRange: string;
   characters: Character[];
@@ -94,7 +96,7 @@ export interface SourceDocument {
   sourceLabel: string;
   sourceHash: string;
   sourceType?: 'text' | 'image';
+  imageUrl?: string;
   coverageRange: string;
   ingestedAt: string;
 }
-
