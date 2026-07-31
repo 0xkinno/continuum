@@ -12,29 +12,39 @@ const NAV_LINKS = [
 
 export default function Nav() {
   const pathname = usePathname()
+  const isLanding = pathname === '/'
 
   return (
     <nav className={styles.nav}>
-      <Link href="/manuscript" className={styles.wordmark}>
+      <Link href={isLanding ? '/' : '/manuscript'} className={styles.wordmark}>
         Continuum<span>.</span>
       </Link>
-      <ul className={styles.links}>
-        <li>
-          <Link href="/" className={styles.link}>
-            ← Landing
+      <div className={styles.navRightGroup}>
+        {isLanding ? (
+          <Link href="/manuscript" className={styles.ctaBtn}>
+            <span>Open workspace</span>
+            <span className={styles.ctaArrow}>→</span>
           </Link>
-        </li>
-        {NAV_LINKS.map(({ href, label }) => (
-          <li key={href}>
-            <Link
-              href={href}
-              className={`${styles.link} ${pathname === href ? styles.active : ''}`}
-            >
-              {label}
-            </Link>
-          </li>
-        ))}
-      </ul>
+        ) : (
+          <ul className={styles.links}>
+            <li>
+              <Link href="/" className={styles.link}>
+                ← Landing
+              </Link>
+            </li>
+            {NAV_LINKS.map(({ href, label }) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className={`${styles.link} ${pathname === href ? styles.active : ''}`}
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </nav>
   )
 }

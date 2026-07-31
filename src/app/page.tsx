@@ -1,6 +1,5 @@
 'use client'
 
-import { Fragment } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import ArchitectureDiagram from '@/components/ArchitectureDiagram'
@@ -21,68 +20,45 @@ const heroItem = {
 export default function LandingPage() {
   return (
     <div data-landing="true" className={styles.landingContainer}>
-      {/* ── Landing Navigation with Apple Backdrop Blur ── */}
-      <nav className={styles.landingNav}>
-        <Link href="/" className={styles.landingWordmark}>
-          Continuum<span>.</span>
-        </Link>
-        <div className={styles.navActions}>
-          <Link href="/manuscript" className={styles.ctaNavBtn}>
-            Open workspace →
-          </Link>
-        </div>
-      </nav>
-
-      {/* ── Hero Text Block (Headline First, followed by 72vh Hero Photograph) ── */}
+      {/* ── 2-Column Editorial Hero Composition ── */}
       <section className={styles.heroHeaderSection}>
-        <motion.div
-          className={styles.heroHeaderContent}
-          initial="initial"
-          animate="animate"
-          variants={heroStagger}
-        >
-          <motion.p variants={heroItem} className={styles.heroEyebrow}>
-            IBM watsonx · Granite Reasoning · Docling Parser
-          </motion.p>
+        <div className={styles.heroGrid}>
+          {/* Left Column: Eyebrow, Headline, Supporting Paragraph */}
+          <motion.div
+            className={styles.heroLeftContent}
+            initial="initial"
+            animate="animate"
+            variants={heroStagger}
+          >
+            <motion.p variants={heroItem} className={styles.heroEyebrow}>
+              IBM watsonx · Granite Reasoning · Docling Parser
+            </motion.p>
 
-          <motion.h1 variants={heroItem} className={styles.heroHeading}>
-            The continuity engine for serious storytellers.
-          </motion.h1>
+            <motion.h1 variants={heroItem} className={styles.heroHeading}>
+              The continuity engine for serious storytellers.
+            </motion.h1>
 
-          <motion.p variants={heroItem} className={styles.heroSub}>
-            Upload your chapters, scripts, and character sheets. Write new scenes.
-            Continuum flags every contradiction with a clear editorial explanation —
-            powered by IBM Granite and a queryable story-fact model.
-          </motion.p>
-
-          <motion.div variants={heroItem} className={styles.heroCtaWrapper}>
-            <Link href="/manuscript" className={styles.ctaBtn}>
-              <span>Open the workspace</span>
-              <span className={styles.ctaArrow}>→</span>
-            </Link>
+            <motion.p variants={heroItem} className={styles.heroSub}>
+              Upload your chapters, scripts, and character sheets. Write new scenes.
+              Continuum flags every contradiction with a clear editorial explanation —
+              powered by IBM Granite and a queryable story-fact model.
+            </motion.p>
           </motion.div>
-        </motion.div>
 
-        {/* Massive 72vh Full-Width Editorial Hero Photograph (0px Gallery Frame) */}
-        <motion.div
-          className={styles.heroBannerFrame}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.4, ease: EASE_EDITORIAL }}
-        >
-          <div className="editorialGalleryFrame">
-            <div className={styles.heroBanner}>
-              <motion.img
-                src="/images/hero.jpg"
-                alt="Museum-quality walnut writing desk editorial photography"
-                className={`${styles.heroBannerImage} editorialImage`}
-                initial={{ scale: 1.04 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 1.6, ease: EASE_EDITORIAL }}
-              />
-            </div>
-          </div>
-        </motion.div>
+          {/* Right Column: Complete Editorial Manuscript Photograph */}
+          <motion.div
+            className={styles.heroRightFrame}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, delay: 0.3, ease: EASE_EDITORIAL }}
+          >
+            <img
+              src="/images/hero.jpg"
+              alt="Museum-quality walnut writing desk editorial photography"
+              className={styles.heroBannerImage}
+            />
+          </motion.div>
+        </div>
       </section>
 
       {/* ── Problem Section: Editorial Card Panel ── */}
@@ -220,6 +196,3 @@ export default function LandingPage() {
     </div>
   )
 }
-
-
-

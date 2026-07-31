@@ -1,5 +1,11 @@
 @import './tokens.css';
 
+:root {
+  --font-serif: var(--font-serif-loaded), 'Canela', 'PP Editorial New', 'Cormorant Garamond', Georgia, serif;
+  --font-sans: var(--font-geist-sans), 'Söhne', 'Neue Haas Grotesk', -apple-system, sans-serif;
+  --font-mono: var(--font-geist-sans), 'Söhne', -apple-system, sans-serif;
+}
+
 /* ── Reset ──────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -76,11 +82,6 @@ code, pre, kbd {
 ::-webkit-scrollbar-thumb { background: var(--color-rule); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-ink-soft); }
 
-/* ── Landing page: hide global nav ────────────────── */
-body:has([data-landing]) nav {
-  display: none;
-}
-
 /* ── Campaign Editorial Image Treatment ────────────────────────
    Warm neutral tones, restrained saturation, preserved highlight detail,
    subtle film grain texture. Gallery presentation: thin paper border,
@@ -109,4 +110,3 @@ body:has([data-landing]) nav {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   background-size: 160px 160px;
 }
-

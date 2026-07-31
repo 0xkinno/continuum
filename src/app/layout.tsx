@@ -25,25 +25,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       className={`${cormorant.variable} ${GeistSans.variable}`}
+      suppressHydrationWarning
     >
-      <head>
-        <style>{`
-          :root {
-            --font-serif: var(--font-serif-loaded), 'Canela', 'PP Editorial New', 'Cormorant Garamond', Georgia, serif;
-            --font-sans:  ${GeistSans.style.fontFamily}, 'Söhne', 'Neue Haas Grotesk', -apple-system, sans-serif;
-            --font-mono:  ${GeistSans.style.fontFamily}, 'Söhne', -apple-system, sans-serif;
-          }
-          html, body {
-            font-feature-settings: "cv02", "cv03", "cv04", "cv11", "liga", "clig", "kern";
-            font-variant-numeric: proportional-nums;
-            font-optical-sizing: auto;
-            text-rendering: optimizeLegibility;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-          }
-        `}</style>
-      </head>
-      <body>
+      <body suppressHydrationWarning>
         <WorkspaceProvider>
           <Nav />
           <MotionLayout>
@@ -54,5 +38,3 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   )
 }
-
-
